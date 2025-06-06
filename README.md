@@ -82,7 +82,7 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
   "description": "Mô tả project mới",
   "priority": "Cao",
   "status": "Lên kế hoạch",
-  "deadline": "30/06/2025"e
+  "deadline": "30/06/2025"
 }
 ```
 
