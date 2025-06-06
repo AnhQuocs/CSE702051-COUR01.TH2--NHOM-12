@@ -34,7 +34,7 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 
 ## 2. Project API
 **GET /api/projects**
-- Mô tả: Lấy danh sách tất cả project của user hiện tại.
+- Mô tả: Lấy danh sách tất cả dự án của user hiện tại.
 - Response thành công (200 OK):
 ``` json
 [
@@ -59,20 +59,61 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 ]
 ```
 
+---
 
+**POST /api/projects**
+- Mô tả: Tạo dự án mới.
+- Request Body (JSON):
+``` json
+{
+  "title": "Project mới",
+  "description": "Mô tả project mới",
+  "priority": "Cao",
+  "status": "Lên kế hoạch",
+  "deadline": "30/06/2025"
+}
+```
+- Response thành công (201 Created):
+``` json
+{
+  "id": "project003",
+  "userId": "user123",
+  "title": "Project mới",
+  "description": "Mô tả project mới",
+  "priority": "Cao",
+  "status": "Lên kế hoạch",
+  "deadline": "30/06/2025"e
+}
+```
 
+---
 
+**PUT /api/projects/{projectId}**
+- Mô tả: Cập nhật dự án.
+- Request Body (JSON):
+``` json
+{
+  "title": "Cập nhật project",
+  "description": "Mô tả cập nhật project",
+  "priority": "Thấp",
+  "status": "Lên kế hoạch",
+  "deadline": "01/07/2025"
+}
+```
+- Response thành công (200 OK):
+``` json
+{
+  "id": "project003",
+  "userId": "user123",
+  "title": "Cập nhật project",
+  "description": "Mô tả cập nhật project",
+  "priority": "Thấp",
+  "status": "Lên kế hoạch",
+  "deadline": "01/07/2025"
+}
+```
 
+---
 
-
-
-
-
-
-
-
-
-
-
-
-
+**DELETE /api/project/{projectId}**
+- Response thành công (204 No Content): Không trả về nội dung
