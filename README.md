@@ -28,49 +28,51 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 | description | String       | Mô tả chi tiết dự án     |
 | priority    | String       | Độ ưu tiên: Thấp, cao,...|
 | status      | String       | Trạng thái: hoàn thành, đang thực hiện,...|
-| deadline    | Datetime     | Ngày kết thúc, hạn hoàn thành |
+| deadline    | Date         | Ngày kết thúc, hạn hoàn thành |
 
 ---
 
-## 2. Authentication API
-### POST /api/auth/logIn
-**Mô tả:** Đăng nhập user, trả về token để xác thực các request tiếp theo.
-- Request Body:
-``` json
-{
-  "username": "user1",
-  "password": "pass123"
-}
-```
----
-- Response thành công (200 OK)
-``` json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "id": "user123...",
-  "email": "user1@example.com",
-  "username": "User1"
-}
-```
-- Response lỗi (ví dụ: sai Email hoặc mật khẩu):
-``` json
-{
-  "error": "Incorrect email or password"
-}
-```
-
----
-
-### POST /api/auth/logOut
-**Mô tả: Đăng xuất user, invalid token.**
-- Headers:
-``` makefile
-Authorization: Bearer <token>
-```
+## 2. Project API
+**GET /api/projects**
+- Mô tả: Lấy danh sách tất cả project của user hiện tại.
 - Response thành công (200 OK):
 ``` json
-{
-  "message": "Logged out successfully"
-}
+[
+  {
+    "id": "projec001",
+    "userId": "user123",
+    "title": "Project 1",
+    "description": "Des project 1",
+    "priority": "Trung bình",
+    "status": "Đang thực hiện",
+    "deadline": "29/06/2025"
+  },
+  {
+    "id": "projec002",
+    "userId": "user123",
+    "title": "Project 2",
+    "description": "Des project 2",
+    "priority": "Cao",
+    "status": "Đã hoàn thành",
+    "deadline": "29/06/2025"
+  }
+]
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
