@@ -115,5 +115,5 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 
 ---
 
-**DELETE /api/project/{projectId}**
+**DELETE /api/projects/{projectId}**
 - Response thành công (204 No Content): Không trả về nội dung
