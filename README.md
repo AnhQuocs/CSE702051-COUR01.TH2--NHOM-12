@@ -28,49 +28,92 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 | description | String       | Mô tả chi tiết dự án     |
 | priority    | String       | Độ ưu tiên: Thấp, cao,...|
 | status      | String       | Trạng thái: hoàn thành, đang thực hiện,...|
-| deadline    | Datetime     | Ngày kết thúc, hạn hoàn thành |
+| deadline    | Date         | Ngày kết thúc, hạn hoàn thành |
 
 ---
 
-## 2. Authentication API
-### POST /api/auth/logIn
-**Mô tả:** Đăng nhập user, trả về token để xác thực các request tiếp theo.
-- Request Body:
+## 2. Project API
+**GET /api/projects**
+- Mô tả: Lấy danh sách tất cả dự án của user hiện tại.
+- Response thành công (200 OK):
 ``` json
-{
-  "username": "user1",
-  "password": "pass123"
-}
+[
+  {
+    "id": "projec001",
+    "userId": "user123",
+    "title": "Project 1",
+    "description": "Des project 1",
+    "priority": "Trung bình",
+    "status": "Đang thực hiện",
+    "deadline": "29/06/2025"
+  },
+  {
+    "id": "projec002",
+    "userId": "user123",
+    "title": "Project 2",
+    "description": "Des project 2",
+    "priority": "Cao",
+    "status": "Đã hoàn thành",
+    "deadline": "29/06/2025"
+  }
+]
 ```
+
 ---
-- Response thành công (200 OK)
+
+**POST /api/projects**
+- Mô tả: Tạo dự án mới.
+- Request Body (JSON):
 ``` json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "id": "user123...",
-  "email": "user1@example.com",
-  "username": "User1"
+  "title": "Project mới",
+  "description": "Mô tả project mới",
+  "priority": "Cao",
+  "status": "Lên kế hoạch",
+  "deadline": "30/06/2025"
 }
 ```
-- Response lỗi (ví dụ: sai Email hoặc mật khẩu):
+- Response thành công (201 Created):
 ``` json
 {
-  "error": "Incorrect email or password"
+  "id": "project003",
+  "userId": "user123",
+  "title": "Project mới",
+  "description": "Mô tả project mới",
+  "priority": "Cao",
+  "status": "Lên kế hoạch",
+  "deadline": "30/06/2025"
 }
 ```
 
 ---
 
-### POST /api/auth/logOut
-**Mô tả: Đăng xuất user, invalid token.**
-- Headers:
-``` makefile
-Authorization: Bearer <token>
+**PUT /api/projects/{projectId}**
+- Mô tả: Cập nhật dự án.
+- Request Body (JSON):
+``` json
+{
+  "title": "Cập nhật project",
+  "description": "Mô tả cập nhật project",
+  "priority": "Thấp",
+  "status": "Lên kế hoạch",
+  "deadline": "01/07/2025"
+}
 ```
 - Response thành công (200 OK):
 ``` json
 {
-  "message": "Logged out successfully"
+  "id": "project003",
+  "userId": "user123",
+  "title": "Cập nhật project",
+  "description": "Mô tả cập nhật project",
+  "priority": "Thấp",
+  "status": "Lên kế hoạch",
+  "deadline": "01/07/2025"
 }
 ```
+
+---
+
+**DELETE /api/projects/{projectId}**
+- Response thành công (204 No Content): Không trả về nội dung
