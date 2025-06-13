@@ -12,10 +12,21 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $projects = Project::where('user_id', $user->id)->get();
+        $query = Project::where('user_id', $user->id);
+
+        // Lọc theo mức độ ưu tiên nếu có
+        if ($request->has('priority')) {
+            $query->where('priority', $request->priority);
+        }
+        // Lọc theo trạng thái nếu có
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $projects = $query->get();
         return response()->json($projects);
     }
 
