@@ -26,7 +26,9 @@ class ProjectController extends Controller
             $query->where('status', $request->status);
         }
 
-        $projects = $query->get();
+        // Phân trang
+        $perPage = $request->input('per_page', 10);
+        $projects = $query->paginate($perPage);
         return response()->json($projects);
     }
 
