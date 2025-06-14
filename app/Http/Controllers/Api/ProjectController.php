@@ -71,9 +71,16 @@ class ProjectController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority' => 'required|in:Thấp,Trung bình,Cao',
-            'status' => 'required|in:Lên kế hoạch,Đang thực hiện,Đã hoàn thành',
+            'status' => 'required|in:Lên kế hoạch,Đang thực hiện,Đã hoàn thành,Hoàn thành muộn',
             'deadline' => 'required|date',
         ]);
+        // Nếu chuyển sang hoàn thành và đã quá hạn thì đánh completed_late
+        if (($validated['status'] === 'Đã hoàn thành' || $validated['status'] === 'Hoàn thành muộn') && $project->deadline < now()->toDateString()) {
+            $validated['status'] = 'Hoàn thành muộn';
+            $validated['completed_late'] = true;
+        } elseif ($validated['status'] === 'Đã hoàn thành') {
+            $validated['completed_late'] = false;
+        }
         $project->update($validated);
         return response()->json($project);
     }

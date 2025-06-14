@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('priority', ['Thấp', 'Trung bình', 'Cao'])->default('Trung bình');
-            $table->enum('status', ['Lên kế hoạch', 'Đang thực hiện', 'Đã hoàn thành'])->default('Lên kế hoạch');
+            $table->enum('status', ['Lên kế hoạch', 'Đang thực hiện', 'Đã hoàn thành', 'Hoàn thành muộn'])->default('Lên kế hoạch');
+            $table->boolean('completed_late')->default(false);
             $table->date('deadline')->nullable();
             $table->timestamps();
 

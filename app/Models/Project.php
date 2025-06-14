@@ -17,6 +17,7 @@ class Project extends Model
         'priority',
         'status',
         'deadline',
+        'completed_late', // true nếu hoàn thành muộn
     ];
 
     public $incrementing = false;
