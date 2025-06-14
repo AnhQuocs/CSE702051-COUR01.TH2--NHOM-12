@@ -6,6 +6,7 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 - Lọc dự án theo trạng thái, mức độ ưu tiên
 - Thống kê số lượng, tỉ lệ phần trăm dự án hoàn thành, chưa hoàn thành, quá hạn
 - Cập nhật thông tin người dùng
+- Tự động gửi email nhắc việc cho user khi đến thời điểm reminder_time của dự án chưa hoàn thành
 
 ---
 
@@ -163,11 +164,5 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 
 ---
 
-## 5. Chức năng nhắc việc qua email
-- Hệ thống hỗ trợ gửi email nhắc việc cho user về dự án chưa hoàn thành.
-- Khi đến thời điểm reminder_time, hệ thống sẽ tự động gửi email nhắc việc cho user về dự án chưa hoàn thành.
-
----
-
-## 6. Liên hệ & đóng góp
+## 5. Liên hệ & đóng góp
 - Nếu có thắc mắc hoặc muốn đóng góp, vui lòng tạo issue hoặc pull request trên repository này.
