@@ -163,11 +163,11 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 
 ---
 
-## 5. Liên hệ & đóng góp
-- Nếu có thắc mắc hoặc muốn đóng góp, vui lòng tạo issue hoặc pull request trên repository này.
+## 5. Chức năng nhắc việc qua email
+- Hệ thống hỗ trợ gửi email nhắc việc cho user về dự án chưa hoàn thành.
+- Khi đến thời điểm reminder_time, hệ thống sẽ tự động gửi email nhắc việc cho user về dự án chưa hoàn thành.
 
 ---
 
-## 6. Chức năng nhắc việc qua email
-- Hệ thống hỗ trợ gửi email nhắc việc cho user về dự án chưa hoàn thành.
-- Khi đến thời điểm reminder_time, hệ thống sẽ tự động gửi email nhắc việc cho user về dự án chưa hoàn thành.
+## 6. Liên hệ & đóng góp
+- Nếu có thắc mắc hoặc muốn đóng góp, vui lòng tạo issue hoặc pull request trên repository này.
