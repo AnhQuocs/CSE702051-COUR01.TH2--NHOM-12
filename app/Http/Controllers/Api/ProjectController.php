@@ -44,6 +44,7 @@ class ProjectController extends Controller
             'priority' => 'required|in:Thấp,Trung bình,Cao',
             'status' => 'required|in:Lên kế hoạch,Đang thực hiện,Đã hoàn thành',
             'deadline' => 'required|date',
+            'reminder_time' => 'nullable|date',
         ]);
         $validated['user_id'] = $user->id;
         $project = Project::create($validated);
@@ -73,6 +74,7 @@ class ProjectController extends Controller
             'priority' => 'required|in:Thấp,Trung bình,Cao',
             'status' => 'required|in:Lên kế hoạch,Đang thực hiện,Đã hoàn thành,Hoàn thành muộn',
             'deadline' => 'required|date',
+            'reminder_time' => 'nullable|date',
         ]);
         // Nếu chuyển sang hoàn thành và đã quá hạn thì đánh completed_late
         if (($validated['status'] === 'Đã hoàn thành' || $validated['status'] === 'Hoàn thành muộn') && $project->deadline < now()->toDateString()) {

@@ -17,6 +17,7 @@ class Project extends Model
         'priority',
         'status',
         'deadline',
+        'reminder_time',
         'completed_late', // true nếu hoàn thành muộn
     ];
 

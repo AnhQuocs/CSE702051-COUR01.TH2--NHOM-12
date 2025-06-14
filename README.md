@@ -29,6 +29,7 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 | priority       | String       | Độ ưu tiên: Thấp, Trung bình, Cao                            |
 | status         | String       | Trạng thái: Lên kế hoạch, Đang thực hiện, Đã hoàn thành, Hoàn thành muộn |
 | deadline       | Date         | Ngày kết thúc, hạn hoàn thành                                |
+| reminder_time  | DateTime     | Thời điểm gửi nhắc việc qua email                            |
 | completed_late | Boolean      | true nếu hoàn thành muộn, false nếu hoàn thành đúng hạn      |
 
 ---
@@ -164,3 +165,9 @@ Website quản lý dự án cho từng user cá nhân, backend cung cấp các A
 
 ## 5. Liên hệ & đóng góp
 - Nếu có thắc mắc hoặc muốn đóng góp, vui lòng tạo issue hoặc pull request trên repository này.
+
+---
+
+## 6. Chức năng nhắc việc qua email
+- Hệ thống hỗ trợ gửi email nhắc việc cho user về dự án chưa hoàn thành.
+- Khi đến thời điểm reminder_time, hệ thống sẽ tự động gửi email nhắc việc cho user về dự án chưa hoàn thành.
