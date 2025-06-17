@@ -31,6 +31,10 @@
                     <option value="Hoàn thành">Hoàn thành</option>
                 </select>
             </div>
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold">Mô tả dự án</label>
+                <textarea name="description" class="w-full border rounded px-3 py-2"></textarea>
+            </div>
             <button type="submit" class="bg-blue-600 text-black px-4 py-2 rounded font-bold w-full border-2 border-black">+ Tạo</button>
         </form>
     </div>
@@ -39,7 +43,8 @@
             e.preventDefault();
             const form = e.target;
             const data = {
-                title: form.name.value, // Đổi tên trường cho đúng với backend
+                title: form.name.value,
+                description: form.description.value,
                 deadline: form.deadline.value,
                 priority: form.priority.value,
                 status: form.status.value
@@ -62,7 +67,8 @@
                     window.location.href = '/dashboard';
                 } else {
                     const error = await response.json();
-                    alert('Có lỗi xảy ra khi tạo dự án: ' + (error.message || 'Unknown error'));
+                    console.error('API error:', error); // Log lỗi chi tiết ra console
+                    alert('Có lỗi xảy ra khi tạo dự án: ' + (error.message || JSON.stringify(error)));
                 }
             } catch (err) {
                 alert('Không thể kết nối tới server!');

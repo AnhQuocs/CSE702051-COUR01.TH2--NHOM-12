@@ -15,7 +15,17 @@ class ProjectController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $projects = Project::where('user_id', $user->id)->get();
+        $projects = Project::where('user_id', $user->id)->get()->map(function ($project) {
+            return [
+                'id' => $project->id,
+                'userId' => $project->user_id,
+                'title' => $project->title,
+                'description' => $project->description,
+                'priority' => $project->priority,
+                'status' => $project->status,
+                'deadline' => optional($project->deadline)->format('d/m/Y'),
+            ];
+        });
         return response()->json($projects);
     }
 
@@ -34,7 +44,15 @@ class ProjectController extends Controller
         ]);
         $validated['user_id'] = $user->id;
         $project = Project::create($validated);
-        return response()->json($project, 201);
+        return response()->json([
+            'id' => $project->id,
+            'userId' => $project->user_id,
+            'title' => $project->title,
+            'description' => $project->description,
+            'priority' => $project->priority,
+            'status' => $project->status,
+            'deadline' => optional($project->deadline)->format('d/m/Y'),
+        ], 201);
     }
 
     /**
@@ -44,7 +62,15 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         $project = Project::where('user_id', $user->id)->findOrFail($id);
-        return response()->json($project);
+        return response()->json([
+            'id' => $project->id,
+            'userId' => $project->user_id,
+            'title' => $project->title,
+            'description' => $project->description,
+            'priority' => $project->priority,
+            'status' => $project->status,
+            'deadline' => optional($project->deadline)->format('d/m/Y'),
+        ]);
     }
 
     /**
@@ -62,7 +88,15 @@ class ProjectController extends Controller
             'deadline' => 'required|date',
         ]);
         $project->update($validated);
-        return response()->json($project);
+        return response()->json([
+            'id' => $project->id,
+            'userId' => $project->user_id,
+            'title' => $project->title,
+            'description' => $project->description,
+            'priority' => $project->priority,
+            'status' => $project->status,
+            'deadline' => optional($project->deadline)->format('d/m/Y'),
+        ]);
     }
 
     /**
@@ -73,6 +107,6 @@ class ProjectController extends Controller
         $user = Auth::user();
         $project = Project::where('user_id', $user->id)->findOrFail($id);
         $project->delete();
-        return response()->json(['message' => 'Deleted successfully']);
+        return response()->noContent();
     }
 }
