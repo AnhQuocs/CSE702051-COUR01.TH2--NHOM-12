@@ -13,9 +13,9 @@ class Kernel extends ConsoleKernel
         // ...existing code...
     ];
 
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('projects:send-reminders')->everyMinute();
+        $schedule->command('projects:send-reminders')->everyTenMinutes(); // Thay đổi từ everyMinute sang everyTenMinutes cho production
         // ...existing code...
     }
 
