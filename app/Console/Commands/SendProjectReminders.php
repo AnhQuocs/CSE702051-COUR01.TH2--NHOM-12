@@ -11,7 +11,9 @@ use Illuminate\Support\Carbon;
 class SendProjectReminders extends Command
 {
     protected $signature = 'projects:send-reminders';
-    protected $description = 'Send reminder emails for projects with upcoming reminder_time';    public function handle()
+    protected $description = 'Send reminder emails for projects with upcoming reminder_time';
+
+    public function handle()
     {
         $now = Carbon::now();
         $projects = Project::whereNotNull('reminder_time')
