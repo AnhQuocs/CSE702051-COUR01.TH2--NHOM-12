@@ -16,12 +16,12 @@ class ProjectRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     */
-    public function rules(): array
+     */    public function rules(): array
     {
         return [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'category_id' => 'nullable|uuid|exists:categories,id',
             'priority' => 'required|in:Thấp,Trung bình,Cao',
             'status' => 'required|in:Lên kế hoạch,Đang thực hiện,Đã hoàn thành,Hoàn thành muộn',
             'deadline' => 'required|date|after_or_equal:today',

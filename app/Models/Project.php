@@ -12,6 +12,7 @@ class Project extends Model
 
     protected $fillable = [
         'user_id',
+        'category_id',
         'title',
         'description',
         'priority',
@@ -33,6 +34,21 @@ class Project extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'project_tag');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(ProjectComment::class);
     }
 
     // Scopes for better query performance

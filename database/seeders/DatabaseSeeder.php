@@ -19,5 +19,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Chạy ProjectSeeder để tạo sample data
+        $this->call([
+            ProjectSeeder::class,
+        ]);
     }
 }
