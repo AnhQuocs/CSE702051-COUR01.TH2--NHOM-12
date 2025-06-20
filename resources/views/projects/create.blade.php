@@ -47,15 +47,13 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-
-                        <!-- Priority -->
+                        </div>                        <!-- Priority -->
                         <div>
                             <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">Mức độ ưu tiên *</label>
                             <select id="priority" name="priority" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="low" {{ old('priority') == 'low' ? 'selected' : '' }}>Thấp</option>
-                                <option value="medium" {{ old('priority') == 'medium' ? 'selected' : '' }}>Trung bình</option>
-                                <option value="high" {{ old('priority') == 'high' ? 'selected' : '' }}>Cao</option>
+                                <option value="low" {{ old('priority', 'medium') == 'low' ? 'selected' : '' }}>Thấp</option>
+                                <option value="medium" {{ old('priority', 'medium') == 'medium' ? 'selected' : '' }}>Trung bình</option>
+                                <option value="high" {{ old('priority', 'medium') == 'high' ? 'selected' : '' }}>Cao</option>
                             </select>
                         </div>
 
@@ -63,10 +61,10 @@
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
                             <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="not_started" {{ old('status') == 'not_started' ? 'selected' : '' }}>Chưa bắt đầu</option>
-                                <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>Đang thực hiện</option>
-                                <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                                <option value="on_hold" {{ old('status') == 'on_hold' ? 'selected' : '' }}>Tạm dừng</option>
+                                <option value="not_started" {{ old('status', 'not_started') == 'not_started' ? 'selected' : '' }}>Chưa bắt đầu</option>
+                                <option value="in_progress" {{ old('status', 'not_started') == 'in_progress' ? 'selected' : '' }}>Đang thực hiện</option>
+                                <option value="completed" {{ old('status', 'not_started') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
+                                <option value="on_hold" {{ old('status', 'not_started') == 'on_hold' ? 'selected' : '' }}>Tạm dừng</option>
                             </select>
                         </div>
 
@@ -123,10 +121,73 @@
                         </a>
                         <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Tạo dự án
-                        </button>
-                    </div>
+                        </button>                    </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <script>
+        // Date validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+            const reminderTime = document.getElementById('reminder_time');
+            const form = document.querySelector('form');
+
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            startDate.setAttribute('min', today);
+            endDate.setAttribute('min', today);
+
+            // Validate end date when start date changes
+            startDate.addEventListener('change', function() {
+                if (this.value) {
+                    endDate.setAttribute('min', this.value);
+                    // Clear end date if it's before start date
+                    if (endDate.value && endDate.value < this.value) {
+                        endDate.value = '';
+                    }
+                }
+            });
+
+            // Validate reminder time when end date changes
+            endDate.addEventListener('change', function() {
+                if (this.value) {
+                    const endDateTime = new Date(this.value + 'T23:59:59').toISOString().slice(0, 16);
+                    reminderTime.setAttribute('max', endDateTime);
+                    // Clear reminder time if it's after end date
+                    if (reminderTime.value) {
+                        const reminderDateTime = new Date(reminderTime.value);
+                        const endDateObj = new Date(this.value + 'T23:59:59');
+                        if (reminderDateTime >= endDateObj) {
+                            reminderTime.value = '';
+                        }
+                    }
+                }
+            });
+
+            // Form validation before submit
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                let errorMessage = '';
+
+                // Check if reminder time is before end date
+                if (reminderTime.value && endDate.value) {
+                    const reminderDateTime = new Date(reminderTime.value);
+                    const endDateObj = new Date(endDate.value + 'T23:59:59');
+                    
+                    if (reminderDateTime >= endDateObj) {
+                        isValid = false;
+                        errorMessage = 'Thời gian nhắc nhở phải trước ngày kết thúc.';
+                    }
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert(errorMessage);
+                }
+            });
+        });
+    </script>
 </x-app-layout>

@@ -126,11 +126,77 @@
                             Hủy
                         </a>
                         <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Cập nhật dự án
-                        </button>
+                            Cập nhật dự án                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <script>
+        // Date validation for edit form
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+            const reminderTime = document.getElementById('reminder_time');
+            const form = document.querySelector('form');
+
+            // Set minimum date to today for new dates
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Update minimum dates based on current values
+            function updateDateConstraints() {
+                if (startDate.value) {
+                    endDate.setAttribute('min', startDate.value);
+                }
+                if (endDate.value) {
+                    const endDateTime = new Date(endDate.value + 'T23:59:59').toISOString().slice(0, 16);
+                    reminderTime.setAttribute('max', endDateTime);
+                }
+            }
+            
+            // Initialize constraints
+            updateDateConstraints();
+
+            startDate.addEventListener('change', function() {
+                if (this.value) {
+                    endDate.setAttribute('min', this.value);
+                    if (endDate.value && endDate.value < this.value) {
+                        endDate.value = '';
+                    }
+                }
+            });
+
+            endDate.addEventListener('change', function() {
+                updateDateConstraints();
+                if (this.value && reminderTime.value) {
+                    const reminderDateTime = new Date(reminderTime.value);
+                    const endDateObj = new Date(this.value + 'T23:59:59');
+                    if (reminderDateTime >= endDateObj) {
+                        reminderTime.value = '';
+                    }
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                let errorMessage = '';
+
+                if (reminderTime.value && endDate.value) {
+                    const reminderDateTime = new Date(reminderTime.value);
+                    const endDateObj = new Date(endDate.value + 'T23:59:59');
+                    
+                    if (reminderDateTime >= endDateObj) {
+                        isValid = false;
+                        errorMessage = 'Thời gian nhắc nhở phải trước ngày kết thúc.';
+                    }
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert(errorMessage);
+                }
+            });
+        });
+    </script>
 </x-app-layout>
