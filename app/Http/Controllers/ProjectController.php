@@ -17,7 +17,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Project::with(['category', 'tags', 'user'])
+        $query = Project::with(['category', 'tags', 'user', 'subtasks'])
             ->where('user_id', Auth::id()); // Only show user's own projects
 
         // Filter by category
@@ -69,7 +69,6 @@ class ProjectController extends Controller
         $project = Project::create([
             'title' => $request->title,
             'description' => $request->description,
-            'status' => $request->status,
             'priority' => $request->priority,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -83,6 +82,20 @@ class ProjectController extends Controller
             $project->tags()->attach($request->tags);
         }
 
+        // Create subtasks
+        if ($request->filled('subtasks')) {
+            foreach ($request->subtasks as $index => $subtaskData) {
+                if (!empty($subtaskData['title'])) {
+                    $project->subtasks()->create([
+                        'title' => $subtaskData['title'],
+                        'description' => $subtaskData['description'] ?? null,
+                        'order' => $index,
+                        'is_completed' => false,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('projects.index')
             ->with('success', 'Dự án đã được tạo thành công!');
     }
@@ -92,7 +105,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['category', 'tags', 'comments.user', 'user']);
+        $project->load(['category', 'tags', 'comments.user', 'user', 'subtasks']);
         
         return view('projects.show', compact('project'));
     }
@@ -105,6 +118,7 @@ class ProjectController extends Controller
         $categories = Category::all();
         $tags = Tag::all();
         $projectTags = $project->tags->pluck('id')->toArray();
+        $project->load('subtasks');
         
         return view('projects.edit', compact('project', 'categories', 'tags', 'projectTags'));
     }
@@ -117,7 +131,6 @@ class ProjectController extends Controller
         $project->update([
             'title' => $request->title,
             'description' => $request->description,
-            'status' => $request->status,
             'priority' => $request->priority,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -130,6 +143,27 @@ class ProjectController extends Controller
             $project->tags()->sync($request->tags);
         } else {
             $project->tags()->detach();
+        }
+
+        // Update subtasks
+        if ($request->filled('subtasks')) {
+            // Delete existing subtasks
+            $project->subtasks()->delete();
+            
+            // Create new subtasks
+            foreach ($request->subtasks as $index => $subtaskData) {
+                if (!empty($subtaskData['title'])) {
+                    $project->subtasks()->create([
+                        'title' => $subtaskData['title'],
+                        'description' => $subtaskData['description'] ?? null,
+                        'order' => $index,
+                        'is_completed' => $subtaskData['is_completed'] ?? false,
+                    ]);
+                }
+            }
+        } else {
+            // If no subtasks provided, delete all existing
+            $project->subtasks()->delete();
         }
 
         return redirect()->route('projects.index')

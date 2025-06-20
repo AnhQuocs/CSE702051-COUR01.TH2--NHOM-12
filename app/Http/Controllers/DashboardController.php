@@ -13,23 +13,27 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Lấy projects với relationships
+        // Lấy projects với relationships và subtasks
         $projects = Project::where('user_id', $user->id)
-            ->with(['category:id,name,color', 'tags:id,name,color'])
+            ->with(['category:id,name,color', 'tags:id,name,color', 'subtasks'])
             ->orderBy('created_at', 'desc')
             ->take(10) // Giới hạn 10 projects gần nhất
             ->get();
 
-        // Thống kê nhanh với status mới
+        // Thống kê nhanh với auto status
+        $allProjects = Project::where('user_id', $user->id)->with('subtasks')->get();
+        
         $stats = [
-            'total' => Project::where('user_id', $user->id)->count(),
-            'completed' => Project::where('user_id', $user->id)->where('status', 'completed')->count(),
-            'in_progress' => Project::where('user_id', $user->id)->where('status', 'in_progress')->count(),
-            'overdue' => Project::where('user_id', $user->id)
-                ->where('status', '!=', 'completed')
-                ->where('end_date', '<', Carbon::today())
-                ->whereNotNull('end_date')
-                ->count(),
+            'total' => $allProjects->count(),
+            'completed' => $allProjects->filter(function($project) {
+                return $project->final_status === 'completed';
+            })->count(),
+            'in_progress' => $allProjects->filter(function($project) {
+                return $project->final_status === 'in_progress';
+            })->count(),
+            'overdue' => $allProjects->filter(function($project) {
+                return $project->final_status === 'overdue';
+            })->count(),
         ];
 
         return view('dashboard', compact('projects', 'stats'));

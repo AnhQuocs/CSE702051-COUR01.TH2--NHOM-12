@@ -102,17 +102,17 @@
                                                         'not_started' => 'bg-gray-100 text-gray-800',
                                                         'in_progress' => 'bg-blue-100 text-blue-800',
                                                         'completed' => 'bg-green-100 text-green-800',
-                                                        'on_hold' => 'bg-yellow-100 text-yellow-800'
+                                                        'overdue' => 'bg-red-100 text-red-800'
                                                     ];
                                                     $statusLabels = [
                                                         'not_started' => 'Chưa bắt đầu',
                                                         'in_progress' => 'Đang thực hiện',
                                                         'completed' => 'Hoàn thành',
-                                                        'on_hold' => 'Tạm dừng'
+                                                        'overdue' => 'Quá hạn'
                                                     ];
                                                 @endphp
-                                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$project->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                                    {{ $statusLabels[$project->status] ?? $project->status }}
+                                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$project->final_status] ?? 'bg-gray-100 text-gray-800' }}">
+                                                    {{ $statusLabels[$project->final_status] ?? $project->final_status }}
                                                 </span>
 
                                                 <!-- Priority Badge -->
@@ -136,6 +136,25 @@
                                             @if($project->description)
                                                 <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ Str::limit($project->description, 150) }}</p>
                                             @endif
+
+                                            <!-- Progress Bar -->
+                                            <div class="mb-3">
+                                                <div class="flex items-center justify-between text-sm mb-1">
+                                                    <span class="text-gray-600">Tiến độ hoàn thành</span>
+                                                    <span class="font-medium text-gray-900">{{ $project->progress_percentage }}%</span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                                                         style="width: {{ $project->progress_percentage }}%"></div>
+                                                </div>
+                                                @if($project->subtasks->count() > 0)
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        {{ $project->subtasks->where('is_completed', true)->count() }}/{{ $project->subtasks->count() }} công việc đã hoàn thành
+                                                    </p>
+                                                @else
+                                                    <p class="text-xs text-gray-500 mt-1">Chưa có công việc nào được tạo</p>
+                                                @endif
+                                            </div>
 
                                             <div class="flex items-center space-x-4 text-sm text-gray-500">
                                                 @if($project->end_date)

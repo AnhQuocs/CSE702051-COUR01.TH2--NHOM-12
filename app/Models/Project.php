@@ -51,6 +51,78 @@ class Project extends Model
         return $this->hasMany(ProjectComment::class);
     }
 
+    public function subtasks()
+    {
+        return $this->hasMany(Subtask::class)->orderBy('order');
+    }
+
+    /**
+     * Calculate progress percentage based on completed subtasks
+     */
+    public function getProgressPercentageAttribute()
+    {
+        $totalSubtasks = $this->subtasks()->count();
+        
+        if ($totalSubtasks === 0) {
+            return 0;
+        }
+        
+        $completedSubtasks = $this->subtasks()->completed()->count();
+        
+        return round(($completedSubtasks / $totalSubtasks) * 100);
+    }
+
+    /**
+     * Get automatic status based on subtasks completion
+     */
+    public function getAutoStatusAttribute()
+    {
+        $totalSubtasks = $this->subtasks()->count();
+        $completedSubtasks = $this->subtasks()->completed()->count();
+        
+        // If no subtasks exist
+        if ($totalSubtasks === 0) {
+            return 'not_started';
+        }
+        
+        // If all subtasks completed
+        if ($completedSubtasks === $totalSubtasks) {
+            return 'completed';
+        }
+        
+        // If some subtasks completed
+        if ($completedSubtasks > 0) {
+            return 'in_progress';
+        }
+        
+        // If no subtasks completed
+        return 'not_started';
+    }
+
+    /**
+     * Check if project is overdue
+     */
+    public function getIsOverdueAttribute()
+    {
+        if (!$this->end_date || $this->auto_status === 'completed') {
+            return false;
+        }
+        
+        return $this->end_date->isPast();
+    }
+
+    /**
+     * Get final status (considering overdue)
+     */
+    public function getFinalStatusAttribute()
+    {
+        if ($this->is_overdue && $this->auto_status !== 'completed') {
+            return 'overdue';
+        }
+        
+        return $this->auto_status;
+    }
+
     // Scopes for better query performance
     public function scopeCompleted($query)
     {

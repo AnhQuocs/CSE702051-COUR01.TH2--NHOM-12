@@ -57,17 +57,6 @@
                             </select>
                         </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Trạng thái *</label>
-                            <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <option value="not_started" {{ old('status', 'not_started') == 'not_started' ? 'selected' : '' }}>Chưa bắt đầu</option>
-                                <option value="in_progress" {{ old('status', 'not_started') == 'in_progress' ? 'selected' : '' }}>Đang thực hiện</option>
-                                <option value="completed" {{ old('status', 'not_started') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                                <option value="on_hold" {{ old('status', 'not_started') == 'on_hold' ? 'selected' : '' }}>Tạm dừng</option>
-                            </select>
-                        </div>
-
                         <!-- Start Date -->
                         <div>
                             <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Ngày bắt đầu</label>
@@ -95,14 +84,70 @@
                                     </label>
                                 @endforeach
                             </div>
-                        </div>
-
-                        <!-- Description -->
+                        </div>                        <!-- Description -->
                         <div class="md:col-span-2">
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Mô tả dự án</label>
                             <textarea id="description" name="description" rows="4" 
                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                       placeholder="Mô tả chi tiết về dự án...">{{ old('description') }}</textarea>
+                        </div>
+
+                        <!-- Subtasks -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Công việc cần làm</label>
+                            <div id="subtasks-container" class="space-y-3">
+                                @if(old('subtasks'))
+                                    @foreach(old('subtasks') as $index => $subtask)
+                                        <div class="subtask-item border border-gray-200 rounded-lg p-4">
+                                            <div class="flex items-start space-x-3">
+                                                <div class="flex-1 space-y-3">
+                                                    <input type="text" 
+                                                           name="subtasks[{{ $index }}][title]" 
+                                                           value="{{ $subtask['title'] ?? '' }}"
+                                                           placeholder="Tiêu đề công việc..."
+                                                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <textarea name="subtasks[{{ $index }}][description]" 
+                                                              rows="2"
+                                                              placeholder="Mô tả công việc (tùy chọn)..."
+                                                              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $subtask['description'] ?? '' }}</textarea>
+                                                </div>
+                                                <button type="button" onclick="removeSubtask(this)" class="text-red-600 hover:text-red-800">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="subtask-item border border-gray-200 rounded-lg p-4">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="flex-1 space-y-3">
+                                                <input type="text" 
+                                                       name="subtasks[0][title]" 
+                                                       placeholder="Tiêu đề công việc..."
+                                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <textarea name="subtasks[0][description]" 
+                                                          rows="2"
+                                                          placeholder="Mô tả công việc (tùy chọn)..."
+                                                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                            </div>
+                                            <button type="button" onclick="removeSubtask(this)" class="text-red-600 hover:text-red-800">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                            <button type="button" onclick="addSubtask()" class="mt-3 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Thêm công việc
+                            </button>
+                            <p class="text-xs text-gray-500 mt-2">Trạng thái dự án sẽ được tự động cập nhật dựa trên tiến độ hoàn thành các công việc</p>
                         </div>
 
                         <!-- Reminder Time -->
@@ -125,15 +170,54 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div>    <script>
+        let subtaskIndex = {{ old('subtasks') ? count(old('subtasks')) : 1 }};
 
-    <script>
+        // Add new subtask
+        function addSubtask() {
+            const container = document.getElementById('subtasks-container');
+            const subtaskHtml = `
+                <div class="subtask-item border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-1 space-y-3">
+                            <input type="text" 
+                                   name="subtasks[${subtaskIndex}][title]" 
+                                   placeholder="Tiêu đề công việc..."
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <textarea name="subtasks[${subtaskIndex}][description]" 
+                                      rows="2"
+                                      placeholder="Mô tả công việc (tùy chọn)..."
+                                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <button type="button" onclick="removeSubtask(this)" class="text-red-600 hover:text-red-800">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', subtaskHtml);
+            subtaskIndex++;
+        }
+
+        // Remove subtask
+        function removeSubtask(button) {
+            const container = document.getElementById('subtasks-container');
+            if (container.children.length > 1) {
+                button.closest('.subtask-item').remove();
+            } else {
+                // Clear the inputs instead of removing if it's the last one
+                const inputs = button.closest('.subtask-item').querySelectorAll('input, textarea');
+                inputs.forEach(input => input.value = '');
+            }
+        }
+
         // Date validation
         document.addEventListener('DOMContentLoaded', function() {
             const startDate = document.getElementById('start_date');
             const endDate = document.getElementById('end_date');
             const reminderTime = document.getElementById('reminder_time');
-            const form = document.querySelector('form');
 
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
@@ -147,6 +231,27 @@
                     // Clear end date if it's before start date
                     if (endDate.value && endDate.value < this.value) {
                         endDate.value = '';
+                    }
+                }
+            });
+
+            // Validate reminder time
+            function validateReminderTime() {
+                if (reminderTime.value && endDate.value) {
+                    const reminderDate = new Date(reminderTime.value);
+                    const endDateTime = new Date(endDate.value + 'T23:59:59');
+                    
+                    if (reminderDate >= endDateTime) {
+                        alert('Thời gian nhắc nhở phải trước ngày kết thúc');
+                        reminderTime.value = '';
+                    }
+                }
+            }
+
+            reminderTime.addEventListener('change', validateReminderTime);
+            endDate.addEventListener('change', validateReminderTime);
+        });
+    </script>
                     }
                 }
             });

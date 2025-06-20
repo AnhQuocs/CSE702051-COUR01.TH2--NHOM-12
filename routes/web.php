@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SubtaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +21,11 @@ Route::middleware('auth')->group(function () {
     
     // Project routes
     Route::resource('projects', ProjectController::class);
+    
+    // Subtask routes
+    Route::patch('/subtasks/{subtask}/toggle', [SubtaskController::class, 'toggle'])->name('subtasks.toggle');
+    Route::post('/projects/{project}/subtasks', [SubtaskController::class, 'store'])->name('subtasks.store');
+    Route::delete('/subtasks/{subtask}', [SubtaskController::class, 'destroy'])->name('subtasks.destroy');
 });
 
 require __DIR__.'/auth.php';
