@@ -99,26 +99,37 @@
                                                 <!-- Status Badge -->
                                                 @php
                                                     $statusColors = [
-                                                        'Lên kế hoạch' => 'bg-gray-100 text-gray-800',
-                                                        'Đang thực hiện' => 'bg-blue-100 text-blue-800',
-                                                        'Đã hoàn thành' => 'bg-green-100 text-green-800',
-                                                        'Hoàn thành muộn' => 'bg-red-100 text-red-800'
+                                                        'not_started' => 'bg-gray-100 text-gray-800',
+                                                        'in_progress' => 'bg-blue-100 text-blue-800',
+                                                        'completed' => 'bg-green-100 text-green-800',
+                                                        'on_hold' => 'bg-yellow-100 text-yellow-800'
+                                                    ];
+                                                    $statusLabels = [
+                                                        'not_started' => 'Chưa bắt đầu',
+                                                        'in_progress' => 'Đang thực hiện',
+                                                        'completed' => 'Hoàn thành',
+                                                        'on_hold' => 'Tạm dừng'
                                                     ];
                                                 @endphp
                                                 <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $statusColors[$project->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                                    {{ $project->status }}
+                                                    {{ $statusLabels[$project->status] ?? $project->status }}
                                                 </span>
 
                                                 <!-- Priority Badge -->
                                                 @php
                                                     $priorityColors = [
-                                                        'Thấp' => 'bg-green-100 text-green-800',
-                                                        'Trung bình' => 'bg-yellow-100 text-yellow-800',
-                                                        'Cao' => 'bg-red-100 text-red-800'
+                                                        'low' => 'bg-green-100 text-green-800',
+                                                        'medium' => 'bg-yellow-100 text-yellow-800',
+                                                        'high' => 'bg-red-100 text-red-800'
+                                                    ];
+                                                    $priorityLabels = [
+                                                        'low' => 'Thấp',
+                                                        'medium' => 'Trung bình',
+                                                        'high' => 'Cao'
                                                     ];
                                                 @endphp
-                                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $priorityColors[$project->priority] }}">
-                                                    {{ $project->priority }}
+                                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full {{ $priorityColors[$project->priority] ?? 'bg-gray-100 text-gray-800' }}">
+                                                    {{ $priorityLabels[$project->priority] ?? $project->priority }}
                                                 </span>
                                             </div>
 
@@ -127,12 +138,12 @@
                                             @endif
 
                                             <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                                @if($project->deadline)
+                                                @if($project->end_date)
                                                     <span class="flex items-center">
                                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                         </svg>
-                                                        Hạn: {{ $project->deadline->format('d/m/Y') }}
+                                                        Hạn: {{ \Carbon\Carbon::parse($project->end_date)->format('d/m/Y') }}
                                                     </span>
                                                 @endif
                                                 

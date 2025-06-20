@@ -17,15 +17,15 @@ class Project extends Model
         'description',
         'priority',
         'status',
-        'deadline',
+        'start_date',
+        'end_date',
         'reminder_time',
-        'completed_late',
     ];
 
     protected $casts = [
-        'deadline' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'reminder_time' => 'datetime',
-        'completed_late' => 'boolean',
     ];
 
     public $incrementing = false;
@@ -54,17 +54,19 @@ class Project extends Model
     // Scopes for better query performance
     public function scopeCompleted($query)
     {
-        return $query->whereIn('status', ['Đã hoàn thành', 'Hoàn thành muộn']);
+        return $query->where('status', 'completed');
     }
 
     public function scopeIncomplete($query)
     {
-        return $query->whereNotIn('status', ['Đã hoàn thành', 'Hoàn thành muộn']);
+        return $query->where('status', '!=', 'completed');
     }
 
     public function scopeOverdue($query)
     {
-        return $query->incomplete()->where('deadline', '<', now()->toDateString());
+        return $query->incomplete()
+            ->where('end_date', '<', now()->toDateString())
+            ->whereNotNull('end_date');
     }
 
     public function scopeByUser($query, $userId)
