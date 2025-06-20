@@ -20,8 +20,9 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // Chạy ProjectSeeder để tạo sample data
+        // Chạy seeders để tạo sample data
         $this->call([
+            CategoryTagSeeder::class,
             ProjectSeeder::class,
         ]);
     }
