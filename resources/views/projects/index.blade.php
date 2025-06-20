@@ -8,10 +8,21 @@
                 + Thêm dự án
             </a>
         </div>
-    </x-slot>
-
-    <div class="py-12">
+    </x-slot>    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            
+            <!-- Flash Messages -->
+            @if(session('success'))
+                <div class="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded mb-6">
+                    {{ session('success') }}
+                </div>
+            @endif
+            
+            @if(session('error'))
+                <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
             
             <!-- Filters -->
             <div class="bg-white shadow rounded-lg p-6 mb-6">
@@ -115,8 +126,7 @@
                                         <div>Kết thúc: {{ \Carbon\Carbon::parse($project->end_date)->format('d/m/Y') }}</div>
                                     @endif
                                 </div>
-                                
-                                <!-- Actions -->
+                                  <!-- Actions -->
                                 <div class="flex items-center justify-between">
                                     <div class="flex space-x-2">
                                         <a href="{{ route('projects.show', $project) }}" class="text-blue-600 hover:text-blue-800 text-sm">
@@ -125,6 +135,14 @@
                                         <a href="{{ route('projects.edit', $project) }}" class="text-green-600 hover:text-green-800 text-sm">
                                             Sửa
                                         </a>
+                                        <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline" 
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa dự án này?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800 text-sm">
+                                                Xóa
+                                            </button>
+                                        </form>
                                     </div>
                                     
                                     <!-- Priority -->

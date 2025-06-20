@@ -8,6 +8,7 @@ use App\Models\Tag;
 use App\Http\Requests\ProjectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -16,7 +17,8 @@ class ProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Project::with(['category', 'tags', 'user']);
+        $query = Project::with(['category', 'tags', 'user'])
+            ->where('user_id', Auth::id()); // Only show user's own projects
 
         // Filter by category
         if ($request->filled('category_id')) {
@@ -139,9 +141,42 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        $project->delete();
-        
-        return redirect()->route('projects.index')
-            ->with('success', 'Dự án đã được xóa thành công!');
+        try {
+            Log::info('Attempting to delete project', [
+                'project_id' => $project->id,
+                'project_user_id' => $project->user_id,
+                'current_user_id' => Auth::id(),
+                'is_authenticated' => Auth::check()
+            ]);
+
+            // Check if user is authenticated
+            if (!Auth::check()) {
+                return redirect()->route('login')
+                    ->with('error', 'Bạn cần đăng nhập để thực hiện thao tác này!');
+            }
+
+            // Check if user owns the project
+            if ($project->user_id !== Auth::id()) {
+                return redirect()->route('projects.index')
+                    ->with('error', 'Bạn không có quyền xóa dự án này!');
+            }
+
+            // Delete the project (cascade will handle relationships)
+            $project->delete();
+            
+            Log::info('Project deleted successfully', ['project_id' => $project->id]);
+            
+            return redirect()->route('projects.index')
+                ->with('success', 'Dự án đã được xóa thành công!');
+                
+        } catch (\Exception $e) {
+            Log::error('Error deleting project: ' . $e->getMessage(), [
+                'project_id' => $project->id ?? 'unknown',
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('projects.index')
+                ->with('error', 'Có lỗi xảy ra khi xóa dự án: ' . $e->getMessage());
+        }
     }
 }
