@@ -139,14 +139,15 @@ class ProjectController extends Controller
     /**
      * Remove the specified project from storage.
      */
-    public function destroy(Project $project)
+    public function destroy(Request $request, Project $project)
     {
         try {
             Log::info('Attempting to delete project', [
                 'project_id' => $project->id,
                 'project_user_id' => $project->user_id,
                 'current_user_id' => Auth::id(),
-                'is_authenticated' => Auth::check()
+                'is_authenticated' => Auth::check(),
+                'referrer' => $request->headers->get('referer')
             ]);
 
             // Check if user is authenticated
@@ -157,7 +158,8 @@ class ProjectController extends Controller
 
             // Check if user owns the project
             if ($project->user_id !== Auth::id()) {
-                return redirect()->route('projects.index')
+                $redirectRoute = $this->getRedirectRoute($request);
+                return redirect()->route($redirectRoute)
                     ->with('error', 'Bạn không có quyền xóa dự án này!');
             }
 
@@ -166,7 +168,10 @@ class ProjectController extends Controller
             
             Log::info('Project deleted successfully', ['project_id' => $project->id]);
             
-            return redirect()->route('projects.index')
+            // Determine where to redirect based on the referrer
+            $redirectRoute = $this->getRedirectRoute($request);
+            
+            return redirect()->route($redirectRoute)
                 ->with('success', 'Dự án đã được xóa thành công!');
                 
         } catch (\Exception $e) {
@@ -175,8 +180,25 @@ class ProjectController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            return redirect()->route('projects.index')
+            $redirectRoute = $this->getRedirectRoute($request);
+            return redirect()->route($redirectRoute)
                 ->with('error', 'Có lỗi xảy ra khi xóa dự án: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Determine redirect route based on request source
+     */
+    private function getRedirectRoute(Request $request): string
+    {
+        $referer = $request->headers->get('referer');
+        
+        // If coming from dashboard, redirect back to dashboard
+        if ($referer && str_contains($referer, '/dashboard')) {
+            return 'dashboard';
+        }
+        
+        // Default to projects index
+        return 'projects.index';
     }
 }
