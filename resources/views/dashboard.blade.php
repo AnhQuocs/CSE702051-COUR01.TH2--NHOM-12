@@ -77,7 +77,7 @@
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900">Dự án gần đây</h3>
-                        <a href="{{ route('projects.create') }}" class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả →</a>
+                        <a href="{{ route('projects.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">Xem tất cả →</a>
                     </div>
 
                     @if($projects->count() > 0)
