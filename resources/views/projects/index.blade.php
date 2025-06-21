@@ -70,14 +70,13 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($projects as $project)
                         <div class="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
-                            <div class="p-6">
-                                <div class="flex items-start justify-between mb-3">
-                                    <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">
+                            <div class="p-6">                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 min-w-0 break-words overflow-hidden mr-3">
                                         <a href="{{ route('projects.show', $project) }}" class="hover:text-blue-600">
                                             {{ $project->title }}
                                         </a>
                                     </h3>                                    
-                                    <!-- Status Badge -->                                    @php
+                                    <!-- Status Badge -->@php
                                         $statusColors = [
                                             'not_planned' => 'bg-gray-100 text-gray-800',
                                             'not_started' => 'bg-yellow-100 text-yellow-800',

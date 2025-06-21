@@ -13,6 +13,35 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Custom CSS for text overflow and line clamp -->
+        <style>
+            .line-clamp-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .line-clamp-3 {
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .break-words {
+                word-wrap: break-word;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+            /* Modal z-index fix */
+            .z-50 {
+                z-index: 50;
+            }
+            /* Smooth transitions for hover effects */
+            .transition-colors {
+                transition: color 0.2s ease-in-out;
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

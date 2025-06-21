@@ -102,7 +102,7 @@
                                     <!-- Project Header -->
                                     <div class="mb-3">
                                         <div class="flex items-start justify-between mb-2">
-                                            <h4 class="text-lg font-semibold text-gray-900 flex-1 mr-2">{{ $project->title }}</h4>
+                                            <h4 class="text-lg font-semibold text-gray-900 flex-1 mr-2 min-w-0 break-words overflow-hidden">{{ $project->title }}</h4>
                                             @if($project->category)
                                                 <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full flex-shrink-0" 
                                                       style="background-color: {{ $project->category->color }}20; color: {{ $project->category->color }}">
@@ -185,8 +185,12 @@
                                                                onchange="toggleSubtaskInDashboard({{ $subtask->id }}, {{ $project->id }})"
                                                                onclick="event.stopPropagation()"
                                                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1">
-                                                        <span class="flex-1 text-xs {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-700' }}">
-                                                            {{ Str::limit($subtask->title, 50) }}
+                                                        <span class="flex-1 min-w-0 text-xs {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-700' }} break-words line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+                                                              onclick="showSubtaskDetail({{ $subtask->id }}, {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }}); event.stopPropagation();">
+                                                            {{ $subtask->title }}
+                                                            @if(strlen($subtask->title) > 40)
+                                                                <span class="text-blue-500 text-xs ml-1">(xem thêm)</span>
+                                                            @endif
                                                         </span>
                                                     </div>
                                                 @endforeach
@@ -202,8 +206,12 @@
                                                                        onchange="toggleSubtaskInDashboard({{ $subtask->id }}, {{ $project->id }})"
                                                                        onclick="event.stopPropagation()"
                                                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1">
-                                                                <span class="flex-1 text-xs {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-700' }}">
-                                                                    {{ Str::limit($subtask->title, 50) }}
+                                                                <span class="flex-1 min-w-0 text-xs {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-700' }} break-words line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+                                                                      onclick="showSubtaskDetail({{ $subtask->id }}, {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }}); event.stopPropagation();">
+                                                                    {{ $subtask->title }}
+                                                                    @if(strlen($subtask->title) > 40)
+                                                                        <span class="text-blue-500 text-xs ml-1">(xem thêm)</span>
+                                                                    @endif
                                                                 </span>
                                                             </div>
                                                         @endforeach
@@ -277,6 +285,52 @@
                             </div>
                         </div>
                     @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtask Detail Modal -->
+    <div id="subtask-detail-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Chi tiết công việc</h3>
+                    <button onclick="closeSubtaskDetail()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="mt-4 space-y-4">
+                    <!-- Title -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Tiêu đề:</label>
+                        <p id="modal-subtask-title" class="text-gray-900 font-medium break-words whitespace-pre-wrap"></p>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div id="modal-description-section" class="hidden">
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Mô tả:</label>
+                        <p id="modal-subtask-description" class="text-gray-700 break-words whitespace-pre-wrap"></p>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Trạng thái:</label>
+                        <span id="modal-subtask-status" class="inline-flex px-3 py-1 text-sm font-medium rounded-full"></span>
+                    </div>
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="flex justify-end pt-4 border-t border-gray-200 mt-6">
+                    <button onclick="closeSubtaskDetail()" 
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                        Đóng
+                    </button>
                 </div>
             </div>
         </div>
@@ -384,5 +438,62 @@
             
             xhr.send();
         }
+
+        // Show subtask detail modal
+        function showSubtaskDetail(subtaskId, title, description, isCompleted) {
+            const modal = document.getElementById('subtask-detail-modal');
+            const titleElement = document.getElementById('modal-subtask-title');
+            const descriptionElement = document.getElementById('modal-subtask-description');
+            const descriptionSection = document.getElementById('modal-description-section');
+            const statusElement = document.getElementById('modal-subtask-status');
+            
+            // Set title
+            titleElement.textContent = title;
+            
+            // Set description
+            if (description && description.trim() !== '') {
+                descriptionElement.textContent = description;
+                descriptionSection.classList.remove('hidden');
+            } else {
+                descriptionSection.classList.add('hidden');
+            }
+            
+            // Set status
+            if (isCompleted) {
+                statusElement.textContent = 'Đã hoàn thành';
+                statusElement.className = 'inline-flex px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800';
+            } else {
+                statusElement.textContent = 'Chưa hoàn thành';
+                statusElement.className = 'inline-flex px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800';
+            }
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close subtask detail modal
+        function closeSubtaskDetail() {
+            const modal = document.getElementById('subtask-detail-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('subtask-detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSubtaskDetail();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('subtask-detail-modal');
+                if (!modal.classList.contains('hidden')) {
+                    closeSubtaskDetail();
+                }
+            }
+        });
     </script>
 </x-app-layout>
