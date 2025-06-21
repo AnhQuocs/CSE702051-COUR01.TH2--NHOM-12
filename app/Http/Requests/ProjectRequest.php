@@ -30,7 +30,7 @@ class ProjectRequest extends FormRequest
             'tags' => 'nullable|array',
             'tags.*' => 'uuid|exists:tags,id',
             'subtasks' => 'nullable|array',
-            'subtasks.*.title' => 'required|string|max:255',
+            'subtasks.*.title' => 'nullable|string|max:255',
             'subtasks.*.description' => 'nullable|string|max:500',
         ];
     }

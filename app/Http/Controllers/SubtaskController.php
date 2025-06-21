@@ -6,6 +6,7 @@ use App\Models\Subtask;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SubtaskController extends Controller
 {
@@ -14,20 +15,51 @@ class SubtaskController extends Controller
      */
     public function toggle(Subtask $subtask)
     {
+        Log::info('Subtask toggle called', [
+            'subtask_id' => $subtask->id,
+            'current_status' => $subtask->is_completed,
+            'user_id' => Auth::id(),
+            'project_user_id' => $subtask->project->user_id
+        ]);
+
         // Check if user owns the project
         if ($subtask->project->user_id !== Auth::id()) {
+            Log::error('Unauthorized subtask toggle attempt');
             abort(403);
         }
 
+        $oldStatus = $subtask->is_completed;
+        $newStatus = !$subtask->is_completed;
+
         $subtask->update([
-            'is_completed' => !$subtask->is_completed
+            'is_completed' => $newStatus
         ]);
+
+        Log::info('Subtask updated', [
+            'subtask_id' => $subtask->id,
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus,
+            'saved_status' => $subtask->fresh()->is_completed
+        ]);
+
+        // Reload project with fresh data
+        $project = $subtask->project->fresh();
+        $project->load('subtasks');
 
         return response()->json([
             'success' => true,
-            'is_completed' => $subtask->is_completed,
-            'progress' => $subtask->project->progress_percentage,
-            'status' => $subtask->project->final_status,
+            'subtask' => [
+                'id' => $subtask->id,
+                'is_completed' => $subtask->fresh()->is_completed,
+                'title' => $subtask->title,
+            ],
+            'project' => [
+                'id' => $project->id,
+                'progress_percentage' => $project->progress_percentage,
+                'final_status' => $project->final_status,
+                'subtasks_count' => $project->subtasks->count(),
+                'completed_subtasks_count' => $project->subtasks->where('is_completed', true)->count(),
+            ],
         ]);
     }
 

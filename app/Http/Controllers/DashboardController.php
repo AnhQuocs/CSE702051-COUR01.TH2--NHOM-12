@@ -12,13 +12,40 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $sortBy = $request->get('sort', 'created_at');
         
         // Lấy projects với relationships và subtasks
-        $projects = Project::where('user_id', $user->id)
-            ->with(['category:id,name,color', 'tags:id,name,color', 'subtasks'])
-            ->orderBy('created_at', 'desc')
-            ->take(10) // Giới hạn 10 projects gần nhất
-            ->get();
+        $projectsQuery = Project::where('user_id', $user->id)
+            ->with(['category:id,name,color', 'tags:id,name,color', 'subtasks']);
+        
+        // Sắp xếp theo yêu cầu
+        switch ($sortBy) {
+            case 'progress':
+                // Sắp xếp theo tiến độ hoàn thành (tính toán từ subtasks)
+                $projects = $projectsQuery->get()->sortByDesc(function($project) {
+                    return $project->progress_percentage;
+                })->take(15);
+                break;
+            case 'deadline':
+                // Sắp xếp theo thời hạn (gần nhất trước)
+                $projects = $projectsQuery->get()->sortBy(function($project) {
+                    if ($project->end_date) {
+                        return \Carbon\Carbon::parse($project->end_date)->timestamp;
+                    }
+                    return PHP_INT_MAX; // Đặt projects không có deadline ở cuối
+                })->take(15);
+                break;
+            case 'priority':
+                // Sắp xếp theo mức độ ưu tiên (cao -> trung bình -> thấp)
+                $projects = $projectsQuery->get()->sortBy(function($project) {
+                    $priorityOrder = ['high' => 1, 'medium' => 2, 'low' => 3];
+                    return $priorityOrder[$project->priority] ?? 4;
+                })->take(15);
+                break;
+            default:
+                // Mặc định sắp xếp theo ngày tạo mới nhất
+                $projects = $projectsQuery->orderBy('created_at', 'desc')->take(15)->get();
+        }
 
         // Thống kê nhanh với auto status
         $allProjects = Project::where('user_id', $user->id)->with('subtasks')->get();
@@ -34,8 +61,11 @@ class DashboardController extends Controller
             'overdue' => $allProjects->filter(function($project) {
                 return $project->final_status === 'overdue';
             })->count(),
+            'not_planned' => $allProjects->filter(function($project) {
+                return $project->final_status === 'not_planned';
+            })->count(),
         ];
 
-        return view('dashboard', compact('projects', 'stats'));
+        return view('dashboard', compact('projects', 'stats', 'sortBy'));
     }
 }

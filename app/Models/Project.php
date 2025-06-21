@@ -80,9 +80,9 @@ class Project extends Model
         $totalSubtasks = $this->subtasks()->count();
         $completedSubtasks = $this->subtasks()->completed()->count();
         
-        // If no subtasks exist
+        // If no subtasks exist - project hasn't been planned yet
         if ($totalSubtasks === 0) {
-            return 'not_started';
+            return 'not_planned';
         }
         
         // If all subtasks completed
@@ -95,7 +95,7 @@ class Project extends Model
             return 'in_progress';
         }
         
-        // If no subtasks completed
+        // If no subtasks completed but subtasks exist
         return 'not_started';
     }
 

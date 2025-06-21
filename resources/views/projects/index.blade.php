@@ -77,15 +77,16 @@
                                             {{ $project->title }}
                                         </a>
                                     </h3>                                    
-                                    <!-- Status Badge -->
-                                    @php
+                                    <!-- Status Badge -->                                    @php
                                         $statusColors = [
-                                            'not_started' => 'bg-gray-100 text-gray-800',
+                                            'not_planned' => 'bg-gray-100 text-gray-800',
+                                            'not_started' => 'bg-yellow-100 text-yellow-800',
                                             'in_progress' => 'bg-blue-100 text-blue-800',
                                             'completed' => 'bg-green-100 text-green-800',
                                             'overdue' => 'bg-red-100 text-red-800'
                                         ];
                                         $statusLabels = [
+                                            'not_planned' => 'Chưa lên kế hoạch',
                                             'not_started' => 'Chưa bắt đầu',
                                             'in_progress' => 'Đang thực hiện',
                                             'completed' => 'Hoàn thành',

@@ -222,9 +222,7 @@
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             startDate.setAttribute('min', today);
-            endDate.setAttribute('min', today);
-
-            // Validate end date when start date changes
+            endDate.setAttribute('min', today);            // Validate end date when start date changes
             startDate.addEventListener('change', function() {
                 if (this.value) {
                     endDate.setAttribute('min', this.value);
@@ -250,49 +248,6 @@
 
             reminderTime.addEventListener('change', validateReminderTime);
             endDate.addEventListener('change', validateReminderTime);
-        });
-    </script>
-                    }
-                }
-            });
-
-            // Validate reminder time when end date changes
-            endDate.addEventListener('change', function() {
-                if (this.value) {
-                    const endDateTime = new Date(this.value + 'T23:59:59').toISOString().slice(0, 16);
-                    reminderTime.setAttribute('max', endDateTime);
-                    // Clear reminder time if it's after end date
-                    if (reminderTime.value) {
-                        const reminderDateTime = new Date(reminderTime.value);
-                        const endDateObj = new Date(this.value + 'T23:59:59');
-                        if (reminderDateTime >= endDateObj) {
-                            reminderTime.value = '';
-                        }
-                    }
-                }
-            });
-
-            // Form validation before submit
-            form.addEventListener('submit', function(e) {
-                let isValid = true;
-                let errorMessage = '';
-
-                // Check if reminder time is before end date
-                if (reminderTime.value && endDate.value) {
-                    const reminderDateTime = new Date(reminderTime.value);
-                    const endDateObj = new Date(endDate.value + 'T23:59:59');
-                    
-                    if (reminderDateTime >= endDateObj) {
-                        isValid = false;
-                        errorMessage = 'Thời gian nhắc nhở phải trước ngày kết thúc.';
-                    }
-                }
-
-                if (!isValid) {
-                    e.preventDefault();
-                    alert(errorMessage);
-                }
-            });
         });
     </script>
 </x-app-layout>
