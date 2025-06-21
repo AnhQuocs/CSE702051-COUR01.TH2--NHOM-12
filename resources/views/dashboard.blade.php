@@ -337,34 +337,21 @@
     </div>
 
     <script>
-        console.log('Inline script loaded - no syntax errors here');
-        
-        function toggleSubtaskInDashboard(subtaskId, projectId) {
-            console.log('Function called - toggleSubtaskInDashboard');
-            var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            var checkbox = document.querySelector('[data-subtask-id="' + subtaskId + '"] input[type="checkbox"]');
-            
-            console.log('Toggling subtask:', subtaskId, 'for project:', projectId);
-            
-            var xhr = new XMLHttpRequest();
-            xhr.open('PATCH', '/subtasks/' + subtaskId + '/toggle', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('X-CSRF-TOKEN', token);
-            xhr.setRequestHeader('Accept', 'application/json');
-            
-    <script>
         console.log('Dashboard script loaded');
         
-        // Function to handle sort changes
-        function handleSortChange() {
+        // Ensure functions are globally available
+        window.handleSortChange = function() {
+            console.log('Sort change triggered');
             var sortValue = document.getElementById('sortSelect').value;
+            console.log('Selected sort value:', sortValue);
             var currentUrl = new URL(window.location);
             currentUrl.searchParams.set('sort', sortValue);
+            console.log('Redirecting to:', currentUrl.toString());
             window.location.href = currentUrl.toString();
         }
         
-        // Function to toggle more subtasks
-        function toggleMoreSubtasks(projectId) {
+        // Ensure other functions are globally available
+        window.toggleMoreSubtasks = function(projectId) {
             var moreSubtasks = document.getElementById('more-subtasks-' + projectId);
             var toggleBtn = document.getElementById('toggle-btn-' + projectId);
             
@@ -382,8 +369,7 @@
             }
         }
         
-        // Function to toggle subtask status
-        function toggleSubtaskInDashboard(subtaskId, projectId) {
+        window.toggleSubtaskInDashboard = function(subtaskId, projectId) {
             console.log('Toggling subtask:', subtaskId, 'for project:', projectId);
             var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             var checkbox = document.querySelector('[data-subtask-id="' + subtaskId + '"] input[type="checkbox"]');
@@ -440,7 +426,7 @@
         }
 
         // Show subtask detail modal
-        function showSubtaskDetail(subtaskId, title, description, isCompleted) {
+        window.showSubtaskDetail = function(subtaskId, title, description, isCompleted) {
             const modal = document.getElementById('subtask-detail-modal');
             const titleElement = document.getElementById('modal-subtask-title');
             const descriptionElement = document.getElementById('modal-subtask-description');
@@ -473,7 +459,7 @@
         }
         
         // Close subtask detail modal
-        function closeSubtaskDetail() {
+        window.closeSubtaskDetail = function() {
             const modal = document.getElementById('subtask-detail-modal');
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
@@ -494,6 +480,15 @@
                     closeSubtaskDetail();
                 }
             }
+        });
+        
+        // Debug: Check if functions are available
+        console.log('Functions available:', {
+            handleSortChange: typeof window.handleSortChange,
+            toggleMoreSubtasks: typeof window.toggleMoreSubtasks,
+            toggleSubtaskInDashboard: typeof window.toggleSubtaskInDashboard,
+            showSubtaskDetail: typeof window.showSubtaskDetail,
+            closeSubtaskDetail: typeof window.closeSubtaskDetail
         });
     </script>
 </x-app-layout>

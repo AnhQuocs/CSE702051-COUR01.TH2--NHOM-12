@@ -7,9 +7,6 @@
                 <a href="{{ route('dashboard') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
                     ← Quay lại Dashboard
                 </a>
-                <a href="{{ route('projects.index') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
-                    Quản lý dự án
-                </a>
             </div>
         </div>
     </x-slot>
@@ -140,8 +137,7 @@
                                                 </div>
                                             @endif
                                         </div>
-                                    </div>
-                                    <button onclick="deleteSubtask({{ $subtask->id }})" 
+                                    </div>                                    <button onclick="deleteSubtask({{ $subtask->id }}); event.stopPropagation();" 
                                             class="ml-3 text-red-600 hover:text-red-800 p-1"
                                             title="Xóa công việc">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -437,24 +433,56 @@
                 return;
             }
             
+            console.log('Deleting subtask:', subtaskId);
+            
             fetch(`/subtasks/${subtaskId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Delete response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Delete response data:', data);
                 if (data.success) {
-                    location.reload(); // Simple reload to update the UI
+                    // Remove the subtask element from DOM
+                    const subtaskElement = document.querySelector(`[data-subtask-id="${subtaskId}"]`);
+                    if (subtaskElement) {
+                        subtaskElement.remove();
+                    }
+                    
+                    // Update progress and status if project data is returned
+                    if (data.progress !== undefined) {
+                        updateProgressAndStatus({
+                            progress_percentage: data.progress,
+                            final_status: data.status,
+                            completed_subtasks: data.completed_subtasks || 0,
+                            total_subtasks: data.total_subtasks || 0
+                        });
+                    }
+                    
+                    // If no more subtasks, reload page to show empty state
+                    const remainingSubtasks = document.querySelectorAll('.subtask-item');
+                    if (remainingSubtasks.length === 0) {
+                        location.reload();
+                    }
+                    
+                    console.log('Subtask deleted successfully');
                 } else {
                     alert('Có lỗi xảy ra khi xóa công việc!');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra!');
+                console.error('Error deleting subtask:', error);
+                alert('Có lỗi xảy ra khi xóa công việc: ' + error.message);
             });
         }
 

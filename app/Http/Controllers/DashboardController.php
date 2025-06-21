@@ -24,7 +24,7 @@ class DashboardController extends Controller
                 // Sắp xếp theo tiến độ hoàn thành (tính toán từ subtasks)
                 $projects = $projectsQuery->get()->sortByDesc(function($project) {
                     return $project->progress_percentage;
-                })->take(15);
+                })->values()->take(15);
                 break;
             case 'deadline':
                 // Sắp xếp theo thời hạn (gần nhất trước)
@@ -33,14 +33,14 @@ class DashboardController extends Controller
                         return \Carbon\Carbon::parse($project->end_date)->timestamp;
                     }
                     return PHP_INT_MAX; // Đặt projects không có deadline ở cuối
-                })->take(15);
+                })->values()->take(15);
                 break;
             case 'priority':
                 // Sắp xếp theo mức độ ưu tiên (cao -> trung bình -> thấp)
                 $projects = $projectsQuery->get()->sortBy(function($project) {
                     $priorityOrder = ['high' => 1, 'medium' => 2, 'low' => 3];
                     return $priorityOrder[$project->priority] ?? 4;
-                })->take(15);
+                })->values()->take(15);
                 break;
             default:
                 // Mặc định sắp xếp theo ngày tạo mới nhất

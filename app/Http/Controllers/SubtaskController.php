@@ -108,10 +108,16 @@ class SubtaskController extends Controller
         $project = $subtask->project;
         $subtask->delete();
 
+        // Refresh project to get updated counts
+        $project->refresh();
+        $project->load('subtasks');
+
         return response()->json([
             'success' => true,
             'progress' => $project->progress_percentage,
             'status' => $project->final_status,
+            'completed_subtasks' => $project->subtasks->where('is_completed', true)->count(),
+            'total_subtasks' => $project->subtasks->count(),
         ]);
     }
 }
