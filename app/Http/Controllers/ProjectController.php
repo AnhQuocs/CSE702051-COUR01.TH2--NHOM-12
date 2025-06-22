@@ -144,6 +144,11 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
+        // Check if project belongs to current user
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Bạn không có quyền truy cập dự án này.');
+        }
+        
         $project->load(['category', 'tags', 'user', 'subtasks' => function($query) {
             $query->orderBy('order');
         }]);
@@ -156,6 +161,11 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
+        // Check if project belongs to current user
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Bạn không có quyền chỉnh sửa dự án này.');
+        }
+        
         $categories = Category::all();
         $tags = Tag::all();
         $projectTags = $project->tags->pluck('id')->toArray();
@@ -169,6 +179,11 @@ class ProjectController extends Controller
      */
     public function update(ProjectRequest $request, Project $project)
     {
+        // Check if project belongs to current user
+        if ($project->user_id !== Auth::id()) {
+            abort(403, 'Bạn không có quyền cập nhật dự án này.');
+        }
+        
         $project->update([
             'title' => $request->title,
             'description' => $request->description,
