@@ -24,6 +24,11 @@ Route::middleware('auth')->group(function () {
     // Project routes
     Route::resource('projects', ProjectController::class);
     
+    // Bulk actions for projects
+    Route::post('/projects/bulk-delete', [ProjectController::class, 'bulkDelete'])->name('projects.bulk-delete');
+    Route::post('/projects/bulk-status', [ProjectController::class, 'bulkStatus'])->name('projects.bulk-status');
+    Route::post('/projects/bulk-export', [ProjectController::class, 'bulkExport'])->name('projects.bulk-export');
+    
     // User Statistics route
     Route::get('/stats', [UserStatsController::class, 'index'])->name('stats.index');
     Route::get('/stats/export/{format?}', [UserStatsController::class, 'export'])->name('stats.export');
