@@ -112,13 +112,12 @@
                             @foreach($project->subtasks as $subtask)
                                 <div class="subtask-item flex items-center justify-between p-4 bg-gray-50 rounded-lg border" 
                                      data-subtask-id="{{ $subtask->id }}">
-                                    <div class="flex items-center space-x-3 flex-1">
-                                        <input type="checkbox" 
+                                    <div class="flex items-center space-x-3 flex-1">                                        <input type="checkbox" 
                                                {{ $subtask->is_completed ? 'checked' : '' }}
-                                               onchange="toggleSubtask({{ $subtask->id }})"
-                                               class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">                                        <div class="flex-1 min-w-0">                                            <div class="font-medium {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-900' }} break-words">
+                                               onchange="toggleSubtask('{{ $subtask->id }}')"
+                                               class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"><div class="flex-1 min-w-0">                                            <div class="font-medium {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-900' }} break-words">
                                                 <span class="line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors" 
-                                                      onclick="showSubtaskDetail({{ $subtask->id }}, {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }})">
+                                                      onclick="showSubtaskDetail('{{ $subtask->id }}', {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }})">
                                                     {{ $subtask->title }}
                                                     @if(strlen($subtask->title) > 50)
                                                         <span class="text-blue-500 text-xs ml-1">(xem thêm)</span>
@@ -128,7 +127,7 @@
                                             @if($subtask->description)
                                                 <div class="text-sm text-gray-500 mt-1 {{ $subtask->is_completed ? 'line-through' : '' }} break-words">
                                                     <span class="line-clamp-2 cursor-pointer hover:text-blue-400 transition-colors" 
-                                                          onclick="showSubtaskDetail({{ $subtask->id }}, {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description) }}, {{ $subtask->is_completed ? 'true' : 'false' }})">
+                                                          onclick="showSubtaskDetail('{{ $subtask->id }}', {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description) }}, {{ $subtask->is_completed ? 'true' : 'false' }})">
                                                         {{ $subtask->description }}
                                                         @if(strlen($subtask->description) > 100)
                                                             <span class="text-blue-400 text-xs ml-1">(xem thêm)</span>
@@ -137,7 +136,7 @@
                                                 </div>
                                             @endif
                                         </div>
-                                    </div>                                    <button onclick="deleteSubtask({{ $subtask->id }}); event.stopPropagation();" 
+                                    </div>                                    <button onclick="deleteSubtask('{{ $subtask->id }}'); event.stopPropagation();" 
                                             class="ml-3 text-red-600 hover:text-red-800 p-1"
                                             title="Xóa công việc">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,12 +288,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script>
-        // CSRF Token for AJAX requests
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
+    </div>    <script>
         // Status colors and labels
         const statusColors = {
             'not_planned': 'bg-gray-100 text-gray-800',
@@ -321,13 +315,12 @@
         function hideAddSubtaskForm() {
             document.getElementById('add-subtask-form').classList.add('hidden');
             document.getElementById('subtask-form').reset();
-        }
-
-        // Add new subtask
+        }        // Add new subtask
         document.getElementById('subtask-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
             fetch(`/projects/{{ $project->id }}/subtasks`, {
                 method: 'POST',
@@ -348,17 +341,46 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('Có lỗi xảy ra!');
-            });
-        });
-
-        // Toggle subtask completion with auto-save
+            });        });            // Toggle subtask completion with auto-save
         function toggleSubtask(subtaskId) {
-            const subtaskItem = document.querySelector(`[data-subtask-id="${subtaskId}"]`);
-            const checkbox = subtaskItem.querySelector('input[type="checkbox"]');
-            const titleDiv = subtaskItem.querySelector('.font-medium');
-            const descDiv = subtaskItem.querySelector('.text-sm.text-gray-500');
+            console.log('🔄 Toggle subtask called:', subtaskId);
             
-            fetch(`/subtasks/${subtaskId}/toggle`, {
+            const subtaskItem = document.querySelector(`[data-subtask-id="${subtaskId}"]`);
+            const checkbox = subtaskItem?.querySelector('input[type="checkbox"]');
+            const titleDiv = subtaskItem?.querySelector('.font-medium');
+            const descDiv = subtaskItem?.querySelector('.text-sm.text-gray-500');
+            
+            console.log('📋 Elements found:', {
+                subtaskItem: !!subtaskItem,
+                checkbox: !!checkbox,
+                titleDiv: !!titleDiv,
+                descDiv: !!descDiv,
+                originalState: checkbox?.checked
+            });
+            
+            if (!subtaskItem || !checkbox) {
+                console.error('❌ Required elements not found!');
+                return;
+            }
+              // Store original state for revert if needed
+            const originalState = checkbox.checked;
+            console.log('💾 Original checkbox state:', originalState);
+            
+            // Get CSRF token
+            const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfTokenElement) {
+                console.error('❌ CSRF token not found!');
+                alert('Lỗi bảo mật: Không tìm thấy CSRF token. Vui lòng tải lại trang.');
+                return;
+            }
+            
+            const csrfToken = csrfTokenElement.getAttribute('content');
+            console.log('🔐 CSRF token found:', csrfToken ? 'Yes' : 'No');
+            
+            // Use real route with proper CSRF
+            const toggleUrl = `/subtasks/${subtaskId}/toggle`;
+            console.log('🌐 Calling URL:', toggleUrl);
+              fetch(toggleUrl, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -366,14 +388,32 @@
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('📡 Response status:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('❌ Response not OK:', text);
+                        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${text}`);
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('✅ Server response:', data);
                 if (data.success) {
-                    // Update checkbox state
-                    checkbox.checked = data.subtask.is_completed;
+                    // Update checkbox based on server response
+                    const newState = data.subtask.is_completed;
+                    checkbox.checked = newState;
+                    
+                    console.log('🔄 Updating UI state:', {
+                        oldState: originalState,
+                        newState: newState,
+                        checkboxState: checkbox.checked
+                    });
                     
                     // Update text styling
-                    if (data.subtask.is_completed) {
+                    if (newState) {
                         titleDiv.classList.add('line-through', 'text-gray-500');
                         titleDiv.classList.remove('text-gray-900');
                         if (descDiv) {
@@ -390,23 +430,24 @@
                     // Update progress bar and status
                     updateProgressAndStatus(data.project);
                     
-                    console.log('Subtask toggled successfully');
+                    console.log('🎉 Subtask toggle completed successfully');
                 } else {
-                    // Revert checkbox if failed
-                    checkbox.checked = !checkbox.checked;
+                    console.error('❌ Server returned success=false:', data);
+                    // Revert checkbox state
+                    checkbox.checked = originalState;
                     alert('Có lỗi xảy ra khi cập nhật trạng thái công việc!');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                // Revert checkbox if failed
-                checkbox.checked = !checkbox.checked;
-                alert('Có lỗi xảy ra!');
+                console.error('💥 Error toggling subtask:', error);
+                // Revert checkbox state
+                checkbox.checked = originalState;
+                alert('Có lỗi xảy ra: ' + error.message);
             });
-        }
-
-        // Update progress bar and status
+        }// Update progress bar and status
         function updateProgressAndStatus(projectData) {
+            console.log('Updating progress and status with data:', projectData);
+            
             // Update progress bar
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progress-text');
@@ -419,7 +460,9 @@
             }
             
             if (progressStats) {
-                progressStats.textContent = `${projectData.completed_subtasks}/${projectData.total_subtasks} công việc đã hoàn thành`;
+                const completedCount = projectData.completed_subtasks_count || projectData.completed_subtasks || 0;
+                const totalCount = projectData.subtasks_count || projectData.total_subtasks || 0;
+                progressStats.textContent = `${completedCount}/${totalCount} công việc đã hoàn thành`;
             }
             
             // Update status badge
@@ -434,6 +477,7 @@
             }
             
             console.log('Deleting subtask:', subtaskId);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
             fetch(`/subtasks/${subtaskId}`, {
                 method: 'DELETE',

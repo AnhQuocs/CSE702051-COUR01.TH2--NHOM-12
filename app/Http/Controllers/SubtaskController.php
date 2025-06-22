@@ -15,52 +15,76 @@ class SubtaskController extends Controller
      */
     public function toggle(Subtask $subtask)
     {
-        Log::info('Subtask toggle called', [
-            'subtask_id' => $subtask->id,
-            'current_status' => $subtask->is_completed,
-            'user_id' => Auth::id(),
-            'project_user_id' => $subtask->project->user_id
-        ]);
+        try {
+            Log::info('Subtask toggle called', [
+                'subtask_id' => $subtask->id,
+                'current_status' => $subtask->is_completed,
+                'user_id' => Auth::id(),
+                'project_user_id' => $subtask->project->user_id
+            ]);
 
-        // Check if user owns the project
-        if ($subtask->project->user_id !== Auth::id()) {
-            Log::error('Unauthorized subtask toggle attempt');
-            abort(403);
+            // Check if user owns the project
+            if ($subtask->project->user_id !== Auth::id()) {
+                Log::error('Unauthorized subtask toggle attempt');
+                return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+            }
+
+            $oldStatus = $subtask->is_completed;
+            $newStatus = !$subtask->is_completed;
+
+            // Update subtask
+            $updated = $subtask->update([
+                'is_completed' => $newStatus
+            ]);
+
+            if (!$updated) {
+                Log::error('Failed to update subtask');
+                return response()->json(['success' => false, 'error' => 'Update failed'], 500);
+            }
+
+            // Verify the update
+            $subtask->refresh();
+            
+            Log::info('Subtask updated', [
+                'subtask_id' => $subtask->id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'saved_status' => $subtask->is_completed,
+                'update_successful' => $updated
+            ]);
+
+            // Reload project with fresh data
+            $project = $subtask->project->fresh();
+            $project->load('subtasks');
+
+            return response()->json([
+                'success' => true,
+                'subtask' => [
+                    'id' => $subtask->id,
+                    'is_completed' => $subtask->is_completed,
+                    'title' => $subtask->title,
+                ],
+                'project' => [
+                    'id' => $project->id,
+                    'progress_percentage' => $project->progress_percentage,
+                    'final_status' => $project->final_status,
+                    'subtasks_count' => $project->subtasks->count(),
+                    'completed_subtasks_count' => $project->subtasks->where('is_completed', true)->count(),
+                ],
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Exception in subtask toggle', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Internal server error',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $oldStatus = $subtask->is_completed;
-        $newStatus = !$subtask->is_completed;
-
-        $subtask->update([
-            'is_completed' => $newStatus
-        ]);
-
-        Log::info('Subtask updated', [
-            'subtask_id' => $subtask->id,
-            'old_status' => $oldStatus,
-            'new_status' => $newStatus,
-            'saved_status' => $subtask->fresh()->is_completed
-        ]);
-
-        // Reload project with fresh data
-        $project = $subtask->project->fresh();
-        $project->load('subtasks');
-
-        return response()->json([
-            'success' => true,
-            'subtask' => [
-                'id' => $subtask->id,
-                'is_completed' => $subtask->fresh()->is_completed,
-                'title' => $subtask->title,
-            ],
-            'project' => [
-                'id' => $project->id,
-                'progress_percentage' => $project->progress_percentage,
-                'final_status' => $project->final_status,
-                'subtasks_count' => $project->subtasks->count(),
-                'completed_subtasks_count' => $project->subtasks->where('is_completed', true)->count(),
-            ],
-        ]);
     }
 
     /**

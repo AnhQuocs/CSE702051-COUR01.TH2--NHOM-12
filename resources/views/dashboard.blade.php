@@ -182,11 +182,11 @@
                                                          data-subtask-id="{{ $subtask->id }}">
                                                         <input type="checkbox" 
                                                                {{ $subtask->is_completed ? 'checked' : '' }}
-                                                               onchange="toggleSubtaskInDashboard({{ $subtask->id }}, {{ $project->id }})"
+                                                               onchange="toggleSubtaskInDashboard('{{ $subtask->id }}', '{{ $project->id }}')"
                                                                onclick="event.stopPropagation()"
                                                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1">
                                                         <span class="flex-1 min-w-0 text-xs {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-700' }} break-words line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
-                                                              onclick="showSubtaskDetail({{ $subtask->id }}, {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }}); event.stopPropagation();">
+                                                              onclick="showSubtaskDetail('{{ $subtask->id }}', {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }}); event.stopPropagation();">
                                                             {{ $subtask->title }}
                                                             @if(strlen($subtask->title) > 40)
                                                                 <span class="text-blue-500 text-xs ml-1">(xem thêm)</span>
@@ -203,11 +203,11 @@
                                                                  data-subtask-id="{{ $subtask->id }}">
                                                                 <input type="checkbox" 
                                                                        {{ $subtask->is_completed ? 'checked' : '' }}
-                                                                       onchange="toggleSubtaskInDashboard({{ $subtask->id }}, {{ $project->id }})"
+                                                                       onchange="toggleSubtaskInDashboard('{{ $subtask->id }}', '{{ $project->id }}')"
                                                                        onclick="event.stopPropagation()"
                                                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1">
                                                                 <span class="flex-1 min-w-0 text-xs {{ $subtask->is_completed ? 'line-through text-gray-500' : 'text-gray-700' }} break-words line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
-                                                                      onclick="showSubtaskDetail({{ $subtask->id }}, {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }}); event.stopPropagation();">
+                                                                      onclick="showSubtaskDetail('{{ $subtask->id }}', {{ json_encode($subtask->title) }}, {{ json_encode($subtask->description ?? '') }}, {{ $subtask->is_completed ? 'true' : 'false' }}); event.stopPropagation();">
                                                                     {{ $subtask->title }}
                                                                     @if(strlen($subtask->title) > 40)
                                                                         <span class="text-blue-500 text-xs ml-1">(xem thêm)</span>
