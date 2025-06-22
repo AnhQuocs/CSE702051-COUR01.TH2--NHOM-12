@@ -25,9 +25,11 @@ class ProjectController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter by status
+        // Filter by status (using computed final_status)
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            // Since final_status is computed, we need to filter after loading
+            // This is temporary - in production you'd want to optimize this
+            $statusFilter = $request->status;
         }
 
         // Search by title or description
@@ -44,7 +46,25 @@ class ProjectController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $projects = $query->paginate(12);
+        $projects = $query->get(); // Get all first for status filtering
+        
+        // Filter by computed final_status if needed
+        if ($request->filled('status')) {
+            $projects = $projects->filter(function ($project) use ($request) {
+                return $project->final_status === $request->status;
+            });
+        }
+        
+        // Paginate the filtered results
+        $currentPage = $request->get('page', 1);
+        $perPage = 12;
+        $projects = new \Illuminate\Pagination\LengthAwarePaginator(
+            $projects->forPage($currentPage, $perPage),
+            $projects->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
         $categories = Category::all();
 
         return view('projects.index', compact('projects', 'categories'));

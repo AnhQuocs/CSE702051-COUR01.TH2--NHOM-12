@@ -23,10 +23,9 @@
                     {{ session('error') }}
                 </div>
             @endif
-            
-            <!-- Filters -->
+              <!-- Filters -->
             <div class="bg-white shadow rounded-lg p-6 mb-6">
-                <form method="GET" action="{{ route('projects.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
                         <input type="text" id="search" name="search" value="{{ request('search') }}" 
@@ -50,26 +49,69 @@
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
                         <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả trạng thái</option>
+                            <option value="not_planned" {{ request('status') == 'not_planned' ? 'selected' : '' }}>Chưa lên kế hoạch</option>
                             <option value="not_started" {{ request('status') == 'not_started' ? 'selected' : '' }}>Chưa bắt đầu</option>
                             <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>Đang thực hiện</option>
                             <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                            <option value="on_hold" {{ request('status') == 'on_hold' ? 'selected' : '' }}>Tạm dừng</option>
+                            <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Quá hạn</option>
                         </select>
                     </div>
                     
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Lọc
-                        </button>
+                    <div>
+                        <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp</label>
+                        <select id="sort_by" name="sort_by" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Ngày tạo</option>
+                            <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>Tên dự án</option>
+                            <option value="end_date" {{ request('sort_by') == 'end_date' ? 'selected' : '' }}>Ngày kết thúc</option>
+                            <option value="priority" {{ request('sort_by') == 'priority' ? 'selected' : '' }}>Mức độ ưu tiên</option>
+                        </select>
                     </div>
-                </form>
+                </div>
             </div>
 
-            <!-- Projects Grid -->
+            <!-- Results summary -->
             @if($projects->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="text-sm text-gray-600">
+                        Hiển thị {{ $projects->count() }} dự án
+                        @if(request()->hasAny(['search', 'category_id', 'status']))
+                            @if(request('search'))
+                                cho từ khóa "<strong>{{ request('search') }}</strong>"
+                            @endif
+                            @if(request('category_id'))
+                                @php $selectedCategory = $categories->find(request('category_id')) @endphp
+                                trong danh mục "<strong>{{ $selectedCategory->name ?? 'N/A' }}</strong>"
+                            @endif
+                            @if(request('status'))
+                                @php
+                                    $statusLabels = [
+                                        'not_planned' => 'Chưa lên kế hoạch',
+                                        'not_started' => 'Chưa bắt đầu', 
+                                        'in_progress' => 'Đang thực hiện',
+                                        'completed' => 'Hoàn thành',
+                                        'overdue' => 'Quá hạn'
+                                    ];
+                                @endphp
+                                với trạng thái "<strong>{{ $statusLabels[request('status')] ?? request('status') }}</strong>"
+                            @endif
+                        @endif
+                    </div>
+                    
+                    @if(request()->hasAny(['search', 'category_id', 'status']))
+                        <a href="{{ route('projects.index') }}" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Xóa bộ lọc
+                        </a>
+                    @endif
+                </div>
+            @endif
+
+            <!-- Projects Grid -->
+            @if($projects->count() > 0)                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 projects-grid" id="projects-grid">
                     @foreach($projects as $project)
-                        <div class="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+                        <div class="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow project-card">
                             <div class="p-6">                                <div class="flex items-start justify-between mb-3">
                                     <h3 class="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 min-w-0 break-words overflow-hidden mr-3">
                                         <a href="{{ route('projects.show', $project) }}" class="hover:text-blue-600">
@@ -234,3 +276,188 @@
         </div>
     </div>
 </x-app-layout>
+
+<!-- Custom styles for real-time filtering -->
+        <style>
+            .filter-loading {
+                position: relative;
+            }
+            
+            .filter-loading::after {
+                content: '';
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 16px;
+                height: 16px;
+                border: 2px solid #f3f3f3;
+                border-top: 2px solid #3498db;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+            
+            @keyframes spin {
+                0% { transform: translateY(-50%) rotate(0deg); }
+                100% { transform: translateY(-50%) rotate(360deg); }
+            }
+            
+            .filter-active {
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+                border-color: #3b82f6 !important;
+            }
+            
+            .projects-grid {
+                transition: opacity 0.3s ease;
+            }
+            
+            .projects-loading {
+                opacity: 0.6;
+                pointer-events: none;
+            }
+            
+            /* Improved hover effects */
+            .project-card {
+                transition: all 0.3s ease;
+            }
+            
+            .project-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+        </style>    <script>
+        // Real-time search and filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search');
+            const categorySelect = document.getElementById('category_id');
+            const statusSelect = document.getElementById('status');
+            const sortSelect = document.getElementById('sort_by');
+            const projectsGrid = document.getElementById('projects-grid');
+            
+            let searchTimeout;
+            
+            // Function to update URL and reload page with filters
+            function updateFilters() {
+                const url = new URL(window.location.href);
+                const params = new URLSearchParams();
+                
+                // Add search parameter
+                const searchValue = searchInput.value.trim();
+                if (searchValue) {
+                    params.set('search', searchValue);
+                }
+                
+                // Add category parameter
+                const categoryValue = categorySelect.value;
+                if (categoryValue) {
+                    params.set('category_id', categoryValue);
+                }
+                
+                // Add status parameter
+                const statusValue = statusSelect.value;
+                if (statusValue) {
+                    params.set('status', statusValue);
+                }
+                
+                // Add sort parameter
+                const sortValue = sortSelect.value;
+                if (sortValue && sortValue !== 'created_at') {
+                    params.set('sort_by', sortValue);
+                }
+                
+                // Show loading state
+                if (projectsGrid) {
+                    projectsGrid.classList.add('projects-loading');
+                }
+                
+                // Update URL and reload
+                url.search = params.toString();
+                window.location.href = url.toString();
+            }
+            
+            // Real-time search with debounce (delay typing)
+            searchInput.addEventListener('input', function() {
+                // Add loading indicator to search input
+                searchInput.classList.add('filter-loading');
+                
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    updateFilters();
+                }, 800); // Wait 800ms after user stops typing for better UX
+            });
+            
+            // Immediate filter on select change
+            categorySelect.addEventListener('change', function() {
+                this.classList.add('filter-loading');
+                updateFilters();
+            });
+            
+            statusSelect.addEventListener('change', function() {
+                this.classList.add('filter-loading');
+                updateFilters();
+            });
+            
+            sortSelect.addEventListener('change', function() {
+                this.classList.add('filter-loading');
+                updateFilters();
+            });
+            
+            // Add visual feedback for active filters
+            function updateFilterStyles() {
+                const filters = [
+                    { element: searchInput, hasValue: searchInput.value.trim() !== '' },
+                    { element: categorySelect, hasValue: categorySelect.value !== '' },
+                    { element: statusSelect, hasValue: statusSelect.value !== '' },
+                    { element: sortSelect, hasValue: sortSelect.value !== 'created_at' }
+                ];
+                
+                filters.forEach(filter => {
+                    const label = filter.element.parentElement.querySelector('label');
+                    
+                    if (filter.hasValue) {
+                        filter.element.classList.add('filter-active');
+                        if (label) {
+                            label.classList.add('text-blue-600', 'font-semibold');
+                        }
+                    } else {
+                        filter.element.classList.remove('filter-active');
+                        if (label) {
+                            label.classList.remove('text-blue-600', 'font-semibold');
+                        }
+                    }
+                });
+            }
+            
+            // Update styles on page load
+            updateFilterStyles();
+            
+            // Update styles when filters change
+            [searchInput, categorySelect, statusSelect, sortSelect].forEach(element => {
+                element.addEventListener('input', updateFilterStyles);
+                element.addEventListener('change', updateFilterStyles);
+            });
+            
+            // Clear button functionality
+            const clearFiltersBtn = document.querySelector('a[href="{{ route("projects.index") }}"]');
+            if (clearFiltersBtn && clearFiltersBtn.textContent.includes('Xóa bộ lọc')) {
+                clearFiltersBtn.addEventListener('click', function() {
+                    if (projectsGrid) {
+                        projectsGrid.classList.add('projects-loading');
+                    }
+                });
+            }
+            
+            // Improve form submission UX
+            const hasActiveFilters = searchInput.value || categorySelect.value || statusSelect.value || (sortSelect.value !== 'created_at');
+            if (hasActiveFilters) {
+                document.body.classList.add('has-active-filters');
+            }
+        });
+        
+        // Prevent multiple rapid submissions
+        let isSubmitting = false;
+        window.addEventListener('beforeunload', function() {
+            if (isSubmitting) return;
+            isSubmitting = true;
+        });
+    </script>
