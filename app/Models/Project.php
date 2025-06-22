@@ -46,11 +46,6 @@ class Project extends Model
         return $this->belongsToMany(Tag::class, 'project_tag');
     }
 
-    public function comments()
-    {
-        return $this->hasMany(ProjectComment::class);
-    }
-
     public function subtasks()
     {
         return $this->hasMany(Subtask::class)->orderBy('order');
