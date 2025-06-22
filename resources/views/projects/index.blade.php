@@ -8,9 +8,10 @@
                 + Thêm dự án
             </a>
         </div>
-    </x-slot>    <!-- Add CSS for tag filter and bulk actions -->
+    </x-slot>    <!-- Add CSS for tag filter -->
     <link rel="stylesheet" href="{{ asset('css/tag-filter.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/bulk-actions.css') }}"><div class="py-12">
+
+<div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <!-- Flash Messages -->
@@ -115,60 +116,14 @@
                                 @endphp
                                 với trạng thái "<strong>{{ $statusLabels[request('status')] ?? request('status') }}</strong>"
                             @endif
-                        @endif
-                    </div>
-                    
-                    <!-- Select All Checkbox -->
-                    <div class="flex items-center space-x-4">
-                        <label class="flex items-center text-sm">
-                            <input type="checkbox" id="select-all" class="mr-2 rounded border-gray-300 focus:ring-blue-500">
-                            Chọn tất cả
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Bulk Actions Bar (Hidden by default) -->
-                <div id="bulk-actions-bar" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <span id="selected-count" class="text-sm font-medium text-blue-900">0 dự án được chọn</span>
-                            
-                            <div class="flex items-center space-x-2">
-                                <select id="bulk-action" class="border border-blue-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">Chọn hành động...</option>
-                                    <option value="delete">Xóa các dự án</option>
-                                    <option value="status_not_started">Đặt trạng thái: Chưa bắt đầu</option>
-                                    <option value="status_in_progress">Đặt trạng thái: Đang thực hiện</option>
-                                    <option value="status_completed">Đặt trạng thái: Hoàn thành</option>
-                                    <option value="export">Xuất dữ liệu</option>
-                                </select>
-                                
-                                <button type="button" id="apply-bulk-action" class="px-4 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
-                                    Áp dụng
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <button type="button" id="clear-selection" class="text-blue-600 hover:text-blue-800 text-sm">
-                            Bỏ chọn tất cả
-                        </button>
-                    </div>
-                </div>
+                        @endif                    </div>                </div>
             @endif
 
             <!-- Projects Grid -->
-            @if($projects->count() > 0)                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 projects-grid" id="projects-grid">
-                    @foreach($projects as $project)
+            @if($projects->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 projects-grid" id="projects-grid">                    @foreach($projects as $project)
                         <div class="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow project-card relative">
-                            <!-- Project Checkbox -->
-                            <div class="absolute top-3 left-3 z-10">
-                                <input type="checkbox" 
-                                       class="project-checkbox rounded border-gray-300 focus:ring-blue-500" 
-                                       data-project-id="{{ $project->id }}"
-                                       value="{{ $project->id }}">
-                            </div>
-                            
-                            <div class="p-6 pl-10">
+                            <div class="p-6">
                                 <div class="flex items-start justify-between mb-3">
                                     <h3 class="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 min-w-0 break-words overflow-hidden mr-3">
                                         <a href="{{ route('projects.show', $project) }}" class="hover:text-blue-600">
@@ -296,8 +251,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+                    @endforeach                </div>
                 
                 <!-- Pagination -->
                 <div class="mt-8">
@@ -323,8 +277,7 @@
                                 Xóa bộ lọc
                             </a>
                         @else
-                            <a href="{{ route('projects.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                                + Tạo dự án mới
+                            <a href="{{ route('projects.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">                                + Tạo dự án mới
                             </a>
                         @endif
                     </div>
@@ -332,9 +285,8 @@
             @endif
         </div>
     </div>
-</x-app-layout>
 
-<!-- Custom styles for real-time filtering -->
+    <!-- Custom styles for real-time filtering -->
         <style>
             .filter-loading {
                 position: relative;
@@ -400,9 +352,8 @@
             let searchTimeout;            // Function to submit form with filters
             function updateFilters() {
                 console.log('updateFilters called');
-                
-                // Build URL with current form values
-                const url = new URL(window.location.origin + '{{ route("projects.index") }}');
+                  // Build URL with current form values
+                const url = new URL(window.location.origin + '/projects');
                 
                 if (searchInput.value.trim()) {
                     url.searchParams.set('search', searchInput.value.trim());
@@ -492,7 +443,7 @@
             });
             
             // Clear button functionality
-            const clearFiltersBtn = document.querySelector('a[href="{{ route("projects.index") }}"]');
+            const clearFiltersBtn = document.querySelector('a[href="/projects"]');
             if (clearFiltersBtn && clearFiltersBtn.textContent.includes('Xóa bộ lọc')) {
                 clearFiltersBtn.addEventListener('click', function() {
                     if (projectsGrid) {
@@ -512,199 +463,5 @@
             if (isSubmitting) return;
             isSubmitting = true;
         });
-
-        // Bulk Actions JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectAllCheckbox = document.getElementById('select-all');
-            const projectCheckboxes = document.querySelectorAll('.project-checkbox');
-            const bulkActionsBar = document.getElementById('bulk-actions-bar');
-            const selectedCountSpan = document.getElementById('selected-count');
-            const bulkActionSelect = document.getElementById('bulk-action');
-            const applyBulkActionButton = document.getElementById('apply-bulk-action');
-            const clearSelectionButton = document.getElementById('clear-selection');
-
-            // Update bulk actions bar visibility and selected count
-            function updateBulkActionsBar() {
-                const selectedCheckboxes = document.querySelectorAll('.project-checkbox:checked');
-                const selectedCount = selectedCheckboxes.length;
-
-                if (selectedCount > 0) {
-                    bulkActionsBar.classList.remove('hidden');
-                    selectedCountSpan.textContent = `${selectedCount} dự án được chọn`;
-                    applyBulkActionButton.disabled = !bulkActionSelect.value;
-                } else {
-                    bulkActionsBar.classList.add('hidden');
-                    bulkActionSelect.value = '';
-                    applyBulkActionButton.disabled = true;
-                }
-
-                // Update select all checkbox state
-                if (selectedCount === 0) {
-                    selectAllCheckbox.checked = false;
-                    selectAllCheckbox.indeterminate = false;
-                } else if (selectedCount === projectCheckboxes.length) {
-                    selectAllCheckbox.checked = true;
-                    selectAllCheckbox.indeterminate = false;
-                } else {
-                    selectAllCheckbox.checked = false;
-                    selectAllCheckbox.indeterminate = true;
-                }
-            }
-
-            // Handle select all checkbox
-            selectAllCheckbox.addEventListener('change', function() {
-                const isChecked = this.checked;
-                projectCheckboxes.forEach(checkbox => {
-                    checkbox.checked = isChecked;
-                });
-                updateBulkActionsBar();
-            });
-
-            // Handle individual project checkboxes
-            projectCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', updateBulkActionsBar);
-            });
-
-            // Handle bulk action selection change
-            bulkActionSelect.addEventListener('change', function() {
-                applyBulkActionButton.disabled = !this.value;
-            });
-
-            // Handle clear selection
-            clearSelectionButton.addEventListener('click', function() {
-                projectCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                updateBulkActionsBar();
-            });
-
-            // Handle apply bulk action
-            applyBulkActionButton.addEventListener('click', function() {
-                const selectedProjectIds = Array.from(document.querySelectorAll('.project-checkbox:checked'))
-                    .map(checkbox => checkbox.value);
-                const action = bulkActionSelect.value;
-
-                if (selectedProjectIds.length === 0 || !action) {
-                    return;
-                }
-
-                // Show confirmation for destructive actions
-                if (action === 'delete') {
-                    if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedProjectIds.length} dự án đã chọn? Hành động này không thể hoàn tác.`)) {
-                        return;
-                    }
-                }
-
-                // Disable button to prevent double-click
-                this.disabled = true;
-                this.textContent = 'Đang xử lý...';
-
-                // Execute the action
-                executeBulkAction(action, selectedProjectIds);
-            });
-
-            // Execute bulk action function
-            function executeBulkAction(action, projectIds) {
-                let url, data;
-
-                if (action === 'delete') {
-                    url = '{{ route("projects.bulk-delete") }}';
-                    data = { project_ids: projectIds };
-                } else if (action.startsWith('status_')) {
-                    url = '{{ route("projects.bulk-status") }}';
-                    const status = action.replace('status_', '');
-                    data = { project_ids: projectIds, status: status };
-                } else if (action === 'export') {
-                    url = '{{ route("projects.bulk-export") }}';
-                    data = { project_ids: projectIds, format: 'csv' };
-                }
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => {
-                    if (action === 'export' && response.ok) {
-                        // Handle file download for export
-                        return response.blob().then(blob => {
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `projects_export_${new Date().toISOString().slice(0,10)}.csv`;
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            
-                            showToast('Xuất dữ liệu thành công!', 'success');
-                            resetBulkActions();
-                        });
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(data => {
-                    if (data && data.success) {
-                        showToast(data.message, 'success');
-                        
-                        // Reload page for delete and status change actions
-                        if (action === 'delete' || action.startsWith('status_')) {
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            resetBulkActions();
-                        }
-                    } else if (data && !data.success) {
-                        showToast(data.error || 'Có lỗi xảy ra!', 'error');
-                        resetBulkActions();
-                    }
-                })
-                .catch(error => {
-                    console.error('Bulk action error:', error);
-                    showToast('Có lỗi xảy ra khi thực hiện thao tác!', 'error');
-                    resetBulkActions();
-                });
-            }
-
-            // Reset bulk actions UI
-            function resetBulkActions() {
-                applyBulkActionButton.disabled = false;
-                applyBulkActionButton.textContent = 'Áp dụng';
-                bulkActionSelect.value = '';
-                
-                // Clear all selections
-                projectCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                updateBulkActionsBar();
-            }
-
-            // Show toast notification
-            function showToast(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg text-white transition-all duration-300 ${
-                    type === 'success' ? 'bg-green-500' : 
-                    type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-                }`;
-                toast.textContent = message;
-                
-                document.body.appendChild(toast);
-                
-                // Remove after 3 seconds
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            toast.parentNode.removeChild(toast);
-                        }
-                    }, 300);
-                }, 3000);
-            }
-        });
     </script>
+</x-app-layout>
