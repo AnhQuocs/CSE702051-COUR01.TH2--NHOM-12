@@ -178,14 +178,14 @@ php artisan key:generate
 DB_CONNECTION=sqlite
 ```
 
-**Hoặc cho MySQL:**
+**Hoặc cho MySQL (XAMPP):**
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=project_management
-DB_USERNAME=your_username  
-DB_PASSWORD=your_password
+DB_USERNAME=root  
+DB_PASSWORD=
 ```
 
 5. **Chạy migration và seeder**
