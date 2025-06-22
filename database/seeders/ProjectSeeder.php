@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -119,13 +120,25 @@ class ProjectSeeder extends Seeder
         ];
 
         foreach ($projectsData as $data) {
-            $project = Project::create(array_merge($data['project'], ['user_id' => $user->id]));
+            // Lấy category ngẫu nhiên
+            $category = Category::inRandomOrder()->first();
+            
+            $project = Project::create(array_merge($data['project'], [
+                'user_id' => $user->id,
+                'category_id' => $category ? $category->id : null
+            ]));
             
             // Tạo subtasks nếu có
             foreach ($data['subtasks'] as $index => $subtaskData) {
                 $project->subtasks()->create(array_merge($subtaskData, [
                     'order' => $index,
                 ]));
+            }
+            
+            // Gán tags ngẫu nhiên cho project
+            $tags = \App\Models\Tag::where('is_active', true)->inRandomOrder()->take(rand(1, 3))->pluck('id');
+            if ($tags->isNotEmpty()) {
+                $project->tags()->attach($tags);
             }
         }
 

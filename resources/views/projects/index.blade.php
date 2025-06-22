@@ -24,10 +24,10 @@
             @if(session('error'))
                 <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded mb-6">
                     {{ session('error') }}
-                </div>
-            @endif              <!-- Filters -->
+                </div>            @endif              <!-- Filters -->
             <div class="bg-white shadow rounded-lg p-6 mb-6 filters-container">
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 filters-grid">
+                <form method="GET" action="{{ route('projects.index') }}" id="filter-form">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 filters-grid">
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
                         <input type="text" id="search" name="search" value="{{ request('search') }}" 
@@ -75,11 +75,22 @@
                         <select id="sort_by" name="sort_by" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Ngày tạo</option>
                             <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>Tên dự án</option>
-                            <option value="end_date" {{ request('sort_by') == 'end_date' ? 'selected' : '' }}>Ngày kết thúc</option>
-                            <option value="priority" {{ request('sort_by') == 'priority' ? 'selected' : '' }}>Mức độ ưu tiên</option>
-                        </select>
+                            <option value="end_date" {{ request('sort_by') == 'end_date' ? 'selected' : '' }}>Ngày kết thúc</option>                            <option value="priority" {{ request('sort_by') == 'priority' ? 'selected' : '' }}>Mức độ ưu tiên</option>                        </select>
                     </div>
                 </div>
+                
+                <!-- Clear filter link only -->
+                @if(request()->hasAny(['search', 'category_id', 'tag_id', 'status', 'sort_by']))
+                    <div class="mt-4 text-right">
+                        <a href="{{ route('projects.index') }}" class="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-end">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Xóa bộ lọc
+                        </a>
+                    </div>
+                @endif
+                </form>
             </div>
 
             <!-- Results summary -->
@@ -109,17 +120,8 @@
                                     ];
                                 @endphp
                                 với trạng thái "<strong>{{ $statusLabels[request('status')] ?? request('status') }}</strong>"
-                            @endif
-                        @endif
+                            @endif                        @endif
                     </div>
-                      @if(request()->hasAny(['search', 'category_id', 'tag_id', 'status']))
-                        <a href="{{ route('projects.index') }}" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            Xóa bộ lọc
-                        </a>
-                    @endif
                 </div>
             @endif
 
@@ -353,51 +355,19 @@
             const statusSelect = document.getElementById('status');
             const sortSelect = document.getElementById('sort_by');
             const projectsGrid = document.getElementById('projects-grid');
+            const filterForm = document.getElementById('filter-form');
             
             let searchTimeout;
             
-            // Function to update URL and reload page with filters
+            // Function to submit form with filters
             function updateFilters() {
-                const url = new URL(window.location.href);
-                const params = new URLSearchParams();
-                
-                // Add search parameter
-                const searchValue = searchInput.value.trim();
-                if (searchValue) {
-                    params.set('search', searchValue);
-                }
-                  // Add category parameter
-                const categoryValue = categorySelect.value;
-                if (categoryValue) {
-                    params.set('category_id', categoryValue);
-                }
-                
-                // Add tag parameter
-                const tagValue = tagSelect.value;
-                if (tagValue) {
-                    params.set('tag_id', tagValue);
-                }
-                
-                // Add status parameter
-                const statusValue = statusSelect.value;
-                if (statusValue) {
-                    params.set('status', statusValue);
-                }
-                
-                // Add sort parameter
-                const sortValue = sortSelect.value;
-                if (sortValue && sortValue !== 'created_at') {
-                    params.set('sort_by', sortValue);
-                }
-                
                 // Show loading state
                 if (projectsGrid) {
                     projectsGrid.classList.add('projects-loading');
                 }
                 
-                // Update URL and reload
-                url.search = params.toString();
-                window.location.href = url.toString();
+                // Submit the form
+                filterForm.submit();
             }
             
             // Real-time search with debounce (delay typing)
