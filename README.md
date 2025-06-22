@@ -8,7 +8,7 @@
 
 ## Tổng quan
 
-Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, cung cấp giao diện web hiện đại và API RESTful :
+Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, cung cấp giao diện web hiện đại và API RESTful có:
 
 ### Tính năng chính
 - **Xác thực người dùng** (đăng ký, đăng nhập, đăng xuất)
@@ -138,12 +138,20 @@ DELETE /subtasks/{id}                    # Xóa công việc con
 
 ### Cài đặt tự động (Khuyến nghị)
 
-**Cho Windows:**
+**Bước 1: Clone repository**
+```bash
+git clone https://github.com/AnhQuocs/CSE702051-COUR01.TH2--NHOM-12
+cd CSE702051-COUR01.TH2--NHOM-12
+```
+
+**Bước 2: Chạy script tự động**
+
+**Cho Windows (PowerShell/CMD):**
 ```bash
 .\setup.bat
 ```
 
-**Cho Linux/Mac:**
+**Cho Linux/Mac (Terminal):**
 ```bash
 chmod +x setup.sh
 ./setup.sh
@@ -155,7 +163,7 @@ chmod +x setup.sh
 
 1. **Clone repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/AnhQuocs/CSE702051-COUR01.TH2--NHOM-12
 cd CSE702051-COUR01.TH2--NHOM-12
 ```
 
@@ -304,11 +312,10 @@ Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE]
 - **Dự án**: CSE702051-COUR01.TH2--NHOM-12
 - **Môn học**: Web Nâng Cao (PHP Laravel)  
 - **Nhóm phát triển**: Nhóm 12
-- **Email**: [Thông tin liên hệ của nhóm]
-- **GitHub**: [Link repository của nhóm]
+- **GitHub**: https://github.com/AnhQuocs/CSE702051-COUR01.TH2--NHOM-12
 
 ---
 
 <p align="center">
-  <strong>Made with ❤️ by CSE702051-COUR01.TH2--NHOM-12</strong>
+  <strong>Made with ❤️ by our team</strong>
 </p>
