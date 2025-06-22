@@ -1,168 +1,314 @@
-<p align="center"><strong><font size="12">WEBSITE QUẢN LÝ DỰ ÁN CÁ NHÂN - MY PROJECT HUB</font></strong></p>
+# HỆ THỐNG QUẢN LÝ DỰ ÁN CÁ NHÂN
 
-Website quản lý dự án cho từng user cá nhân, backend cung cấp các API để:
-- Xác thực người dùng (đăng ký, đăng nhập, đăng xuất)
-- Lấy, tạo, cập nhật, xóa dự án
-- Lọc dự án theo trạng thái, mức độ ưu tiên
-- Thống kê số lượng, tỉ lệ phần trăm dự án hoàn thành, chưa hoàn thành, quá hạn
-- Cập nhật thông tin người dùng
-- Tự động gửi email nhắc việc cho user khi đến thời điểm reminder_time của dự án chưa hoàn thành
+> **My Project Hub** - Hệ thống quản lý dự án hiện đại với Laravel và Tailwind CSS
 
----
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## 1. Mô hình dữ liệu
+## Tổng quan
 
-### User
-| Trường    | Kiểu dữ liệu | Mô tả                       |
-|-----------|--------------|-----------------------------|
-| id        | String       | ID duy nhất của user        |
-| username  | String       | Tên đăng nhập               |
-| email     | String       | Email tài khoản             |
-| password  | String       | Mật khẩu                    |
+Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, cung cấp giao diện web hiện đại và API RESTful để:
 
-### Project
-| Trường         | Kiểu dữ liệu | Mô tả                                                        |
-|----------------|--------------|--------------------------------------------------------------|
-| id             | String       | ID duy nhất của dự án                                        |
-| userId         | String       | ID của user sở hữu dự án                                     |
-| title          | String       | Tiêu đề dự án                                                |
-| description    | String       | Mô tả chi tiết dự án                                         |
-| priority       | String       | Độ ưu tiên: Thấp, Trung bình, Cao                            |
-| status         | String       | Trạng thái: Lên kế hoạch, Đang thực hiện, Đã hoàn thành, Hoàn thành muộn |
-| deadline       | Date         | Ngày kết thúc, hạn hoàn thành                                |
-| reminder_time  | DateTime     | Thời điểm gửi nhắc việc qua email                            |
-| completed_late | Boolean      | true nếu hoàn thành muộn, false nếu hoàn thành đúng hạn      |
+### Tính năng chính
+- **Xác thực người dùng** (đăng ký, đăng nhập, đăng xuất)
+- **Quản lý dự án** (CRUD, lọc, tìm kiếm, phân trang)
+- **Hệ thống nhãn và danh mục** cho dự án
+- **Quản lý công việc con** (subtasks) với drag & drop
+- **Thống kê và báo cáo** chi tiết (xuất CSV/JSON)
+- **Quản lý profile người dùng** (chỉnh sửa thông tin, đổi mật khẩu)
+- **Nhắc nhở qua email** tự động (command scheduler)
+- **API RESTful** với Laravel Sanctum
+- **Giao diện responsive** với Tailwind CSS
+- **Giao diện tiếng Việt** hoàn chỉnh
+- **Bảo mật cao** với authorization và validation
 
 ---
 
-## 2. Project API
-**GET /api/projects**
-- Mô tả: Lấy danh sách tất cả dự án của user hiện tại. Có thể lọc theo priority, status.
-- Query params: ?priority=...&status=...
-- Response thành công (200 OK):
-```json
-[
-  {
-    "id": "projec001",
-    "userId": "user123",
-    "title": "Project 1",
-    "description": "Des project 1",
-    "priority": "Trung bình",
-    "status": "Đang thực hiện",
-    "deadline": "2025-06-29",
-    "completed_late": false
-  },
-  {
-    "id": "projec002",
-    "userId": "user123",
-    "title": "Project 2",
-    "description": "Des project 2",
-    "priority": "Cao",
-    "status": "Đã hoàn thành",
-    "deadline": "2025-06-29",
-    "completed_late": false
-  }
-]
+## Mô hình dữ liệu
+
+### Users
+| Trường | Kiểu | Mô tả |
+|--------|------|-------|
+| id | UUID | ID duy nhất |
+| name | String | Tên hiển thị |
+| email | String | Email đăng nhập |
+| password | String | Mật khẩu mã hóa |
+
+### Projects  
+| Trường | Kiểu | Mô tả |
+|--------|------|-------|
+| id | UUID | ID duy nhất |
+| user_id | UUID | Chủ sở hữu dự án |
+| category_id | UUID | Danh mục (nullable) |
+| title | String | Tiêu đề dự án |
+| description | Text | Mô tả chi tiết |
+| priority | Enum | low, medium, high |
+| status | Enum | not_started, in_progress, completed, on_hold |
+| start_date | Date | Ngày bắt đầu |
+| end_date | Date | Ngày kết thúc |
+| reminder_time | DateTime | Thời gian nhắc nhở |
+
+### Tags & Categories
+- **Categories**: Phân loại dự án theo chủ đề
+- **Tags**: Gắn nhãn linh hoạt cho dự án  
+- **Project_Tag**: Bảng pivot liên kết dự án và nhãn
+- **Subtasks**: Công việc con với trạng thái hoàn thành
+
+---
+
+## API Endpoints
+
+### Authentication
+```http
+POST   /api/login               # Đăng nhập và lấy token
+POST   /api/logout              # Đăng xuất (xóa token)
+GET    /api/user                # Thông tin user hiện tại
+```
+
+### Projects Management
+```http
+GET    /api/projects            # Lấy danh sách dự án
+POST   /api/projects            # Tạo dự án mới  
+GET    /api/projects/{id}       # Chi tiết dự án
+PUT    /api/projects/{id}       # Cập nhật dự án
+DELETE /api/projects/{id}       # Xóa dự án
+```
+
+### Statistics
+```http
+GET /api/project-stats          # Thống kê dự án qua API
+```
+
+### Web Interface
+```http
+GET /                            # Trang chủ
+GET /dashboard                   # Dashboard chính  
+GET /projects                    # Danh sách dự án
+GET /projects/create             # Tạo dự án mới
+GET /projects/{id}               # Chi tiết dự án
+GET /projects/{id}/edit          # Chỉnh sửa dự án
+GET /profile                     # Chỉnh sửa profile
+PATCH /profile                   # Cập nhật profile
+DELETE /profile                  # Xóa tài khoản
+GET /stats                       # Trang thống kê chi tiết
+GET /stats/export/{format}       # Xuất báo cáo (CSV/JSON)
+GET /stats/report                # Báo cáo nâng cao
+```
+
+### Subtasks Management  
+```http
+POST   /projects/{id}/subtasks           # Tạo công việc con
+PATCH  /subtasks/{id}/toggle             # Chuyển đổi trạng thái
+DELETE /subtasks/{id}                    # Xóa công việc con
 ```
 
 ---
 
-**GET /api/project-stats**
-- Mô tả: Thống kê số lượng, tỉ lệ phần trăm dự án hoàn thành, chưa hoàn thành, quá hạn.
-- Response thành công (200 OK):
-```json
-{
-  "total": 10,
-  "completed": 4,
-  "incomplete": 6,
-  "overdue": 2,
-  "completed_percent": 40.0,
-  "incomplete_percent": 60.0,
-  "overdue_percent": 20.0
-}
+## Công nghệ sử dụng
+
+### Backend
+- **Laravel 12.x** - PHP Framework
+- **MySQL** - Database  
+- **Laravel Sanctum** - API Authentication
+- **Laravel Breeze** - Authentication UI
+- **Carbon** - Date manipulation
+
+### Frontend  
+- **Blade Templates** - Server-side rendering
+- **Tailwind CSS** - Utility-first CSS
+- **Alpine.js** - Lightweight JavaScript
+- **SortableJS** - Drag & drop functionality
+
+### Development Tools
+- **Composer** - PHP dependency manager
+- **NPM/Vite** - Asset bundling
+- **Git** - Version control
+- **Custom Middleware** - Request logging
+
+---
+
+## Cài đặt và chạy dự án
+
+### Yêu cầu hệ thống
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- MySQL >= 8.0 (hoặc SQLite)
+
+### Cài đặt tự động (Khuyến nghị)
+
+**Cho Windows:**
+```bash
+.\setup.bat
+```
+
+**Cho Linux/Mac:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+> 💡 **Lưu ý**: Script tự động sẽ thực hiện tất cả các bước cài đặt bên dưới. Xem file `SETUP.md` để biết thêm chi tiết và troubleshooting.
+
+### Hướng dẫn cài đặt thủ công
+
+1. **Clone repository**
+```bash
+git clone <repository-url>
+cd CSE702051-COUR01.TH2--NHOM-12
+```
+
+2. **Cài đặt dependencies**
+```bash
+composer install
+npm install
+```
+
+3. **Cấu hình môi trường**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. **Cấu hình database trong `.env`**
+
+**Cho SQLite (mặc định - đơn giản):**
+```env
+DB_CONNECTION=sqlite
+```
+
+**Hoặc cho MySQL:**
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=project_management
+DB_USERNAME=your_username  
+DB_PASSWORD=your_password
+```
+
+5. **Chạy migration và seeder**
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+6. **Build assets**
+```bash
+npm run dev
+# Hoặc cho production: npm run build
+```
+
+7. **Khởi động server**
+```bash
+php artisan serve
+```
+
+8. **Truy cập ứng dụng**
+- Web: http://localhost:8000
+- API: http://localhost:8000/api
+
+---
+
+## Artisan Commands
+
+### Email Reminders
+```bash
+# Gửi email nhắc nhở cho các dự án sắp hết hạn
+php artisan projects:send-reminders
+```
+
+### Database Management
+```bash
+# Chạy migrations
+php artisan migrate
+
+# Rollback migrations  
+php artisan migrate:rollback
+
+# Seed database
+php artisan db:seed
+
+# Refresh database
+php artisan migrate:refresh --seed
+```
+
+### Cache & Optimization
+```bash
+# Clear application cache
+php artisan cache:clear
+
+# Clear configuration cache
+php artisan config:clear
+
+# Optimize for production
+php artisan optimize
 ```
 
 ---
 
-**POST /api/projects**
-- Mô tả: Tạo dự án mới. Dự án mặc định là chưa hoàn thành, nếu quá hạn mà chưa hoàn thành sẽ được tính là quá hạn.
-- Request Body (JSON):
-```json
-{
-  "title": "Project mới",
-  "description": "Mô tả project mới",
-  "priority": "Cao",
-  "status": "Lên kế hoạch",
-  "deadline": "2025-06-30"
-}
-```
-- Response thành công (201 Created):
-```json
-{
-  "id": "project003",
-  "userId": "user123",
-  "title": "Project mới",
-  "description": "Mô tả project mới",
-  "priority": "Cao",
-  "status": "Lên kế hoạch",
-  "deadline": "2025-06-30",
-  "completed_late": false
-}
-```
+## Bảo mật
+
+- **Authentication**: Laravel Sanctum
+- **Authorization**: Ownership-based access control  
+- **Validation**: Form Request validation
+- **CSRF Protection**: Built-in Laravel protection
+- **SQL Injection**: Eloquent ORM protection
+- **XSS Protection**: Blade template escaping
 
 ---
 
-**PUT /api/projects/{projectId}**
-- Mô tả: Cập nhật dự án. Nếu chuyển sang hoàn thành sau hạn sẽ tự động chuyển trạng thái sang "Hoàn thành muộn".
-- Request Body (JSON):
-```json
-{
-  "title": "Cập nhật project",
-  "description": "Mô tả cập nhật project",
-  "priority": "Thấp",
-  "status": "Đã hoàn thành",
-  "deadline": "2025-07-01"
-}
+## Cấu trúc thư mục
+
 ```
-- Response thành công (200 OK):
-```json
-{
-  "id": "project003",
-  "userId": "user123",
-  "title": "Cập nhật project",
-  "description": "Mô tả cập nhật project",
-  "priority": "Thấp",
-  "status": "Hoàn thành muộn",
-  "deadline": "2025-07-01",
-  "completed_late": true
-}
+project/
+├── app/
+│   ├── Http/Controllers/     # Controllers
+│   ├── Models/              # Eloquent Models  
+│   ├── Requests/            # Form Requests
+│   └── Mail/                # Email templates
+├── database/
+│   ├── migrations/          # Database migrations
+│   └── seeders/             # Data seeders
+├── resources/
+│   ├── views/               # Blade templates
+│   ├── css/                 # Stylesheets
+│   └── js/                  # JavaScript
+├── routes/
+│   ├── web.php              # Web routes
+│   └── api.php              # API routes  
+└── public/                  # Public assets
 ```
 
 ---
 
-**DELETE /api/projects/{projectId}**
-- Response thành công (204 No Content): Không trả về nội dung
+## Đóng góp
+
+1. Fork repository
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)  
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
 
 ---
 
-## 3. Xác thực & Bảo mật
-- Tất cả các API đều yêu cầu xác thực qua Sanctum (private API).
-- Người dùng chỉ thao tác được với dự án của chính mình.
+## Giấy phép
+
+Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
 ---
 
-## 4. Hướng dẫn chạy dự án
-1. Clone source code về máy
-2. Cài đặt Composer và npm nếu chưa có
-3. Chạy `composer install` và `npm install`
-4. Copy file `.env.example` thành `.env` và cấu hình database
-5. Chạy `php artisan key:generate`
-6. Chạy `php artisan migrate:refresh` để tạo bảng
-7. Chạy `npm run dev` để build frontend
-8. Khởi động server: `php artisan serve`
-9. Truy cập http://localhost:8000
+## Liên hệ
+
+- **Dự án**: CSE702051-COUR01.TH2--NHOM-12
+- **Môn học**: Web Nâng Cao (PHP Laravel)  
+- **Nhóm phát triển**: Nhóm 12
+- **Email**: [Thông tin liên hệ của nhóm]
+- **GitHub**: [Link repository của nhóm]
 
 ---
 
-## 5. Liên hệ & đóng góp
-- Nếu có thắc mắc hoặc muốn đóng góp, vui lòng tạo issue hoặc pull request trên repository này.
+<p align="center">
+  <strong>Made with ❤️ by CSE702051-COUR01.TH2--NHOM-12</strong>
+</p>
