@@ -39,9 +39,19 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
+        
+        // Clear all session data
+        $request->session()->flush();
 
-        return redirect('/');
+        $response = redirect('/');
+        
+        // Prevent caching to stop back button access
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
+        $response->headers->set('Clear-Site-Data', '"cache", "storage"');
+        
+        return $response;
     }
 }

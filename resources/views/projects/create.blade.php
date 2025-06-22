@@ -1,9 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Tạo dự án mới') }}
-            </h2>
+        <div class="flex items-center justify-between">        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Tạo dự án mới
+        </h2>
             <a href="{{ route('projects.index') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
                 ← Quay lại danh sách
             </a>

@@ -61,5 +61,32 @@
                 {{ $slot }}
             </main>
         </div>
+        
+        <!-- Prevent back button access after logout -->
+        <script>
+            // Disable browser back button functionality for authenticated pages
+            if (window.history && window.history.pushState) {
+                window.history.pushState('forward', null, '');
+                window.addEventListener('popstate', function() {
+                    window.history.pushState('forward', null, '');
+                });
+            }
+            
+            // Clear browser cache on page unload
+            window.addEventListener('beforeunload', function() {
+                if (window.performance && window.performance.navigation.type === 1) {
+                    // Page was refreshed
+                    return;
+                }
+                // Clear any cached data
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        names.forEach(function(name) {
+                            caches.delete(name);
+                        });
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
