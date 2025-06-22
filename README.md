@@ -8,7 +8,7 @@
 
 ## Tổng quan
 
-Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, cung cấp giao diện web hiện đại và API RESTful để:
+Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, cung cấp giao diện web hiện đại và API RESTful :
 
 ### Tính năng chính
 - **Xác thực người dùng** (đăng ký, đăng nhập, đăng xuất)
