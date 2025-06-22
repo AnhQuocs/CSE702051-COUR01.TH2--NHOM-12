@@ -104,19 +104,10 @@
                         </div>
                     </form>
                 </div>                <!-- Subtasks List -->
-                <div id="subtasks-container">
-                    @if($project->subtasks->count() > 0)
-                        <div id="sortable-subtasks" class="space-y-3">
-                            @foreach($project->subtasks->sortBy('order') as $subtask)
-                                <div class="subtask-item flex items-center justify-between p-4 bg-gray-50 rounded-lg border transition-all duration-200 hover:shadow-md" 
+                <div id="subtasks-container" data-project-id="{{ $project->id }}">
+                    @if($project->subtasks->count() > 0)                        <div id="sortable-subtasks" class="space-y-3">
+                            @foreach($project->subtasks as $subtask)                                <div class="subtask-item flex items-center justify-between p-4 bg-gray-50 rounded-lg border transition-all duration-200 hover:shadow-md" 
                                      data-subtask-id="{{ $subtask->id }}">
-                                    
-                                    <!-- Drag Handle -->
-                                    <div class="drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mr-3 flex-shrink-0">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
-                                        </svg>
-                                    </div>
                                     
                                     <div class="flex items-center space-x-3 flex-1">                                        <input type="checkbox" 
                                                {{ $subtask->is_completed ? 'checked' : '' }}
@@ -591,129 +582,8 @@
                 const modal = document.getElementById('subtask-detail-modal');
                 if (!modal.classList.contains('hidden')) {
                     closeSubtaskDetail();
-                }            }
-        });
+                }            }        });
         
-        // Initialize drag & drop functionality
-        initDragAndDrop();
     </script>
 
-    <!-- SortableJS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    
-    <!-- Drag & Drop Specific Script -->
-    <script>
-        function initDragAndDrop() {
-            const sortableList = document.getElementById('sortable-subtasks');
-            if (!sortableList) return;
-
-            new Sortable(sortableList, {
-                animation: 200,
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                dragClass: 'sortable-drag',
-                handle: '.drag-handle',
-                onStart: function (evt) {
-                    evt.item.classList.add('dragging');
-                },
-                onEnd: function (evt) {
-                    evt.item.classList.remove('dragging');
-                    
-                    // Get new order of subtask IDs
-                    const subtaskIds = Array.from(sortableList.children).map(item => 
-                        item.getAttribute('data-subtask-id')
-                    );
-                    
-                    // Send to backend
-                    updateSubtasksOrder(subtaskIds);
-                }
-            });
-        }
-
-        function updateSubtasksOrder(subtaskIds) {
-            const projectId = {{ $project->id }};
-            
-            fetch(`/projects/${projectId}/subtasks/order`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    subtask_ids: subtaskIds
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Subtasks order updated successfully');
-                    // Show success toast (optional)
-                    showToast('Đã cập nhật thứ tự công việc', 'success');
-                } else {
-                    console.error('Failed to update order:', data.error);
-                    showToast('Lỗi khi cập nhật thứ tự', 'error');
-                    // Optionally reload to restore original order
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Lỗi kết nối', 'error');
-                // Optionally reload to restore original order
-                location.reload();
-            });
-        }
-
-        function showToast(message, type = 'info') {
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg text-white transition-all duration-300 ${
-                type === 'success' ? 'bg-green-500' : 
-                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-            }`;
-            toast.textContent = message;
-            
-            document.body.appendChild(toast);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-    </script>
-
-    <!-- Drag & Drop CSS -->
-    <style>
-        .sortable-ghost {
-            opacity: 0.4;
-            background: #f3f4f6;
-        }
-        
-        .sortable-chosen {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .sortable-drag {
-            transform: rotate(5deg);
-        }
-        
-        .dragging {
-            opacity: 0.8;
-            transform: scale(1.05);
-            z-index: 1000;
-        }
-        
-        .drag-handle:hover {
-            transform: scale(1.1);
-        }
-        
-        .subtask-item {
-            transition: all 0.2s ease;
-        }
-        
-        .subtask-item:hover .drag-handle {
-            color: #6b7280;
-        }
-    </style>
 </x-app-layout>
