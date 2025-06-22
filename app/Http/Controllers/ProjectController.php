@@ -34,9 +34,9 @@ class ProjectController extends Controller
 
         // Filter by status (using computed final_status)
         if ($request->filled('status')) {
-            // Since final_status is computed, we need to filter after loading
-            // This is temporary - in production you'd want to optimize this
             $statusFilter = $request->status;
+            // Note: Since final_status is computed from subtasks, we need to filter after loading
+            // For better performance, consider adding a cached status field to projects table
         }
 
         // Search by title or description
@@ -51,13 +51,19 @@ class ProjectController extends Controller
         // Sort
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+        
+        if (in_array($sortBy, ['created_at', 'updated_at', 'start_date', 'end_date', 'title'])) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
 
-        $projects = $query->get(); // Get all first for status filtering
+        // Get projects first
+        $allProjects = $query->get();
         
         // Filter by computed final_status if needed
         if ($request->filled('status')) {
-            $projects = $projects->filter(function ($project) use ($request) {
+            $allProjects = $allProjects->filter(function ($project) use ($request) {
                 return $project->final_status === $request->status;
             });
         }
@@ -66,8 +72,8 @@ class ProjectController extends Controller
         $currentPage = $request->get('page', 1);
         $perPage = 12;
         $projects = new \Illuminate\Pagination\LengthAwarePaginator(
-            $projects->forPage($currentPage, $perPage),
-            $projects->count(),
+            $allProjects->forPage($currentPage, $perPage),
+            $allProjects->count(),
             $perPage,
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
@@ -271,291 +277,4 @@ class ProjectController extends Controller
         return 'projects.index';
     }
 
-    /**
-     * Bulk delete selected projects
-     */
-    public function bulkDelete(Request $request)
-    {
-        try {
-            $request->validate([
-                'project_ids' => 'required|array',
-                'project_ids.*' => 'exists:projects,id'
-            ]);
-
-            $projectIds = $request->project_ids;
-            
-            // Only delete projects that belong to the current user
-            $deletedCount = Project::whereIn('id', $projectIds)
-                ->where('user_id', Auth::id())
-                ->delete();
-
-            if ($deletedCount > 0) {
-                Log::info('Bulk deleted projects', [
-                    'user_id' => Auth::id(),
-                    'project_ids' => $projectIds,
-                    'deleted_count' => $deletedCount
-                ]);
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => "Đã xóa thành công {$deletedCount} dự án.",
-                    'deleted_count' => $deletedCount
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Không có dự án nào được xóa.'
-                ], 400);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Bulk delete failed', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Có lỗi xảy ra khi xóa dự án.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Bulk update status for selected projects
-     */
-    public function bulkStatus(Request $request)
-    {
-        try {
-            $request->validate([
-                'project_ids' => 'required|array',
-                'project_ids.*' => 'exists:projects,id',
-                'status' => 'required|in:not_planned,not_started,in_progress,completed'
-            ]);
-
-            $projectIds = $request->project_ids;
-            $status = $request->status;
-            
-            // Map status to appropriate field updates
-            $updates = [];
-            switch ($status) {
-                case 'not_planned':
-                    $updates = ['status' => 'not_planned', 'start_date' => null];
-                    break;
-                case 'not_started':
-                    $updates = ['status' => 'not_started'];
-                    break;
-                case 'in_progress':
-                    $updates = ['status' => 'in_progress'];
-                    break;
-                case 'completed':
-                    $updates = ['status' => 'completed'];
-                    break;
-            }
-
-            // Only update projects that belong to the current user
-            $updatedCount = Project::whereIn('id', $projectIds)
-                ->where('user_id', Auth::id())
-                ->update($updates);
-
-            if ($updatedCount > 0) {
-                $statusLabels = [
-                    'not_planned' => 'Chưa lên kế hoạch',
-                    'not_started' => 'Chưa bắt đầu',
-                    'in_progress' => 'Đang thực hiện',
-                    'completed' => 'Hoàn thành'
-                ];
-
-                Log::info('Bulk updated project status', [
-                    'user_id' => Auth::id(),
-                    'project_ids' => $projectIds,
-                    'status' => $status,
-                    'updated_count' => $updatedCount
-                ]);
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => "Đã cập nhật trạng thái thành '{$statusLabels[$status]}' cho {$updatedCount} dự án.",
-                    'updated_count' => $updatedCount
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Không có dự án nào được cập nhật.'
-                ], 400);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Bulk status update failed', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Có lỗi xảy ra khi cập nhật trạng thái.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Bulk export selected projects
-     */
-    public function bulkExport(Request $request)
-    {
-        try {
-            $request->validate([
-                'project_ids' => 'required|array',
-                'project_ids.*' => 'exists:projects,id',
-                'format' => 'in:csv,json'
-            ]);
-
-            $projectIds = $request->project_ids;
-            $format = $request->format ?? 'csv';
-            
-            // Get projects that belong to the current user
-            $projects = Project::with(['category', 'tags', 'subtasks'])
-                ->whereIn('id', $projectIds)
-                ->where('user_id', Auth::id())
-                ->get();
-
-            if ($projects->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Không tìm thấy dự án nào để xuất.'
-                ], 400);
-            }
-
-            if ($format === 'csv') {
-                return $this->exportProjectsAsCsv($projects);
-            } else {
-                return $this->exportProjectsAsJson($projects);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Bulk export failed', [
-                'error' => $e->getMessage(),
-                'user_id' => Auth::id()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Có lỗi xảy ra khi xuất dữ liệu.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Export projects as CSV
-     */
-    private function exportProjectsAsCsv($projects)
-    {
-        $filename = 'projects_export_' . date('Y-m-d_H-i-s') . '.csv';
-        
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
-
-        $callback = function() use ($projects) {
-            $file = fopen('php://output', 'w');
-            
-            // Add BOM for proper UTF-8 encoding in Excel
-            fwrite($file, "\xEF\xBB\xBF");
-            
-            // CSV Headers
-            fputcsv($file, [
-                'ID',
-                'Tiêu đề',
-                'Mô tả',
-                'Trạng thái',
-                'Mức độ ưu tiên',
-                'Danh mục',
-                'Tags',
-                'Ngày bắt đầu',
-                'Ngày kết thúc',
-                'Tiến độ (%)',
-                'Số công việc',
-                'Ngày tạo'
-            ]);
-
-            // Data rows
-            foreach ($projects as $project) {
-                $statusLabels = [
-                    'not_planned' => 'Chưa lên kế hoạch',
-                    'not_started' => 'Chưa bắt đầu',
-                    'in_progress' => 'Đang thực hiện',
-                    'completed' => 'Hoàn thành',
-                    'overdue' => 'Quá hạn'
-                ];
-
-                $priorityLabels = [
-                    'low' => 'Thấp',
-                    'medium' => 'Trung bình',
-                    'high' => 'Cao'
-                ];
-
-                fputcsv($file, [
-                    $project->id,
-                    $project->title,
-                    $project->description,
-                    $statusLabels[$project->final_status] ?? $project->final_status,
-                    $priorityLabels[$project->priority] ?? $project->priority,
-                    $project->category?->name ?? '',
-                    $project->tags->pluck('name')->join(', '),
-                    $project->start_date?->format('d/m/Y') ?? '',
-                    $project->end_date?->format('d/m/Y') ?? '',
-                    $project->progress_percentage,
-                    $project->subtasks->count(),
-                    $project->created_at->format('d/m/Y H:i')
-                ]);
-            }
-            
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
-
-    /**
-     * Export projects as JSON
-     */
-    private function exportProjectsAsJson($projects)
-    {
-        $filename = 'projects_export_' . date('Y-m-d_H-i-s') . '.json';
-        
-        $data = $projects->map(function ($project) {
-            return [
-                'id' => $project->id,
-                'title' => $project->title,
-                'description' => $project->description,
-                'status' => $project->final_status,
-                'priority' => $project->priority,
-                'category' => $project->category?->name,
-                'tags' => $project->tags->pluck('name'),
-                'start_date' => $project->start_date?->format('Y-m-d'),
-                'end_date' => $project->end_date?->format('Y-m-d'),
-                'progress_percentage' => $project->progress_percentage,
-                'subtasks_count' => $project->subtasks->count(),
-                'created_at' => $project->created_at->format('Y-m-d H:i:s'),
-                'subtasks' => $project->subtasks->map(function ($subtask) {
-                    return [
-                        'id' => $subtask->id,
-                        'title' => $subtask->title,
-                        'description' => $subtask->description,
-                        'is_completed' => $subtask->is_completed,
-                        'created_at' => $subtask->created_at->format('Y-m-d H:i:s')
-                    ];
-                })
-            ];
-        });
-
-        return response()->json([
-            'export_date' => date('Y-m-d H:i:s'),
-            'projects_count' => $projects->count(),
-            'projects' => $data
-        ])
-        ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
-        ->header('Content-Type', 'application/json');
-    }
 }

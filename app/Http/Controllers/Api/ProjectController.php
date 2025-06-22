@@ -50,14 +50,13 @@ class ProjectController extends Controller
     public function update(ProjectRequest $request, string $id)
     {
         $user = Auth::user();
-        $project = Project::byUser($user->id)->findOrFail($id);
+        $project = Project::where('user_id', $user->id)->findOrFail($id);
         $validated = $request->validated();
         
-        // Nếu chuyển sang hoàn thành và đã quá hạn thì đánh completed_late
-        if (($validated['status'] === 'Đã hoàn thành' || $validated['status'] === 'Hoàn thành muộn') && $project->deadline < now()->toDateString()) {
-            $validated['status'] = 'Hoàn thành muộn';
+        // Check if project is being marked as completed and is past deadline
+        if ($validated['status'] === 'completed' && $project->end_date && $project->end_date < now()->toDateString()) {
             $validated['completed_late'] = true;
-        } elseif ($validated['status'] === 'Đã hoàn thành') {
+        } elseif ($validated['status'] === 'completed') {
             $validated['completed_late'] = false;
         }
         
@@ -71,7 +70,7 @@ class ProjectController extends Controller
     public function destroy(string $id)
     {
         $user = Auth::user();
-        $project = Project::byUser($user->id)->findOrFail($id);
+        $project = Project::where('user_id', $user->id)->findOrFail($id);
         $project->delete();
         return response()->json(['message' => 'Deleted successfully']);
     }

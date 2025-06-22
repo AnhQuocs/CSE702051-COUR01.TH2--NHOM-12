@@ -87,7 +87,8 @@
                     </div>
                 @endif
                 </form>
-            </div>            <!-- Results summary and bulk actions -->
+            </div>
+            <!-- Results summary -->
             @if($projects->count() > 0)
                 <div class="flex items-center justify-between mb-6">
                     <div class="text-sm text-gray-600">
