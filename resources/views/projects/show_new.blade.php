@@ -193,7 +193,7 @@
                             
                             @if($project->tags->count() > 0)
                                 <div>
-                                    <span class="text-sm font-medium text-gray-500">Tags:</span>
+                                    <span class="text-sm font-medium text-gray-500">Nhãn:</span>
                                     <div class="mt-1">
                                         @foreach($project->tags as $tag)
                                             <span class="inline-block text-sm px-2 py-1 rounded mr-2 mb-1"

@@ -259,7 +259,7 @@
                                             </span>
                                         </div>
 
-                                        <!-- Tags -->
+                                        <!-- Nhãn -->
                                         @if($project->tags && $project->tags->count() > 0)
                                             <div class="flex flex-wrap gap-1 mt-2">
                                                 @foreach($project->tags->take(3) as $tag)

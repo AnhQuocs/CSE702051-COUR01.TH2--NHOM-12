@@ -45,9 +45,9 @@
                             </select>
                         </div><div class="tag-filter-container">
                         <label for="tag_id" class="block text-sm font-medium text-gray-700 mb-1">
-                            <span class="tag-icon">#</span>Tag
+                            <span class="tag-icon">#</span>Nhãn
                         </label>                        <select id="tag_id" name="tag_id" onchange="this.form.submit()" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Tất cả tag</option>
+                            <option value="">Tất cả nhãn</option>
                             @foreach($tags as $tag)
                                 <option value="{{ $tag->id }}" {{ request('tag_id') == $tag->id ? 'selected' : '' }}>
                                     #{{ $tag->name }}{{ $tag->projects_count > 0 ? ' (' . $tag->projects_count . ')' : '' }}
@@ -103,7 +103,7 @@
                             @endif
                             @if(request('tag_id'))
                                 @php $selectedTag = $tags->find(request('tag_id')) @endphp
-                                với tag "<strong>#{{ $selectedTag->name ?? 'N/A' }}</strong>"
+                                với nhãn "<strong>#{{ $selectedTag->name ?? 'N/A' }}</strong>"
                             @endif
                             @if(request('status'))
                                 @php
@@ -156,7 +156,7 @@
                                     {{ $project->description }}
                                 </p>
                                 
-                                <!-- Category & Tags -->
+                                <!-- Category & Nhãn -->
                                 <div class="mb-4">
                                     @if($project->category)
                                         <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded mr-2 mb-1">

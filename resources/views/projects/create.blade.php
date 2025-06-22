@@ -69,11 +69,9 @@
                             <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Ngày kết thúc</label>
                             <input type="date" id="end_date" name="end_date" value="{{ old('end_date') }}" 
                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Tags -->
+                        </div>                        <!-- Nhãn -->
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nhãn</label>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
                                 @foreach($tags as $tag)
                                     <label class="flex items-center">
