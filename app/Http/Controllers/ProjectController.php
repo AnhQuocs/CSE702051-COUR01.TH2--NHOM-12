@@ -138,7 +138,9 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['category', 'tags', 'comments.user', 'user', 'subtasks']);
+        $project->load(['category', 'tags', 'comments.user', 'user', 'subtasks' => function($query) {
+            $query->orderBy('order');
+        }]);
         
         return view('projects.show', compact('project'));
     }

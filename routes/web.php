@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/subtasks/{subtask}/toggle', [SubtaskController::class, 'toggle'])
           ->name('subtasks.toggle');
     Route::post('/projects/{project}/subtasks', [SubtaskController::class, 'store'])->name('subtasks.store');
+    Route::put('/projects/{project}/subtasks/order', [SubtaskController::class, 'updateOrder'])->name('subtasks.updateOrder');
     Route::delete('/subtasks/{subtask}', [SubtaskController::class, 'destroy'])->name('subtasks.destroy');
     
     // Test route
