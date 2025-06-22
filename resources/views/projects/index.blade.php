@@ -437,7 +437,8 @@
             
             // Update styles on page load
             updateFilterStyles();
-              // Update styles when filters change
+            
+            // Update styles when filters change
             [searchInput, categorySelect, tagSelect, statusSelect, sortSelect].forEach(element => {
                 element.addEventListener('input', updateFilterStyles);
                 element.addEventListener('change', updateFilterStyles);
@@ -452,7 +453,8 @@
                     }
                 });
             }
-              // Improve form submission UX
+            
+            // Improve form submission UX
             const hasActiveFilters = searchInput.value || categorySelect.value || tagSelect.value || statusSelect.value || (sortSelect.value !== 'created_at');
             if (hasActiveFilters) {
                 document.body.classList.add('has-active-filters');
