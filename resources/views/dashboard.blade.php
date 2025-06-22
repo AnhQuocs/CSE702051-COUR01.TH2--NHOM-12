@@ -13,63 +13,74 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-blue-500 rounded-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Tổng số dự án</h3>
-                            <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+            <!-- Top row with statistics and quick stats widget -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Statistics Cards -->
+                <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-500 rounded-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Tổng số dự án</h3>
+                                <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-green-500 rounded-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Đã hoàn thành</h3>
-                            <p class="text-2xl font-bold text-gray-900">{{ $stats['completed'] }}</p>
+                    <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-500 rounded-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Đã hoàn thành</h3>
+                                <p class="text-2xl font-bold text-gray-900">{{ $stats['completed'] }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-yellow-500 rounded-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Đang thực hiện</h3>
-                            <p class="text-2xl font-bold text-gray-900">{{ $stats['in_progress'] }}</p>
+                    <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-500 rounded-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Đang thực hiện</h3>
+                                <p class="text-2xl font-bold text-gray-900">{{ $stats['in_progress'] }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-red-500 rounded-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-semibold text-gray-700">Quá hạn</h3>
-                            <p class="text-2xl font-bold text-gray-900">{{ $stats['overdue'] }}</p>
+                    <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-red-500 rounded-lg">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-semibold text-gray-700">Quá hạn</h3>
+                                <p class="text-2xl font-bold text-gray-900">{{ $stats['overdue'] }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Quick Stats Widget -->
+                @include('components.stats-widget', [
+                    'totalProjects' => $stats['total'],
+                    'completedProjects' => $stats['completed'],
+                    'totalSubtasks' => $stats['total_subtasks'],
+                    'completedSubtasks' => $stats['completed_subtasks']
+                ])
             </div>
 
             <!-- Projects List -->

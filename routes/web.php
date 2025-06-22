@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SubtaskController;
+use App\Http\Controllers\UserStatsController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,6 +23,11 @@ Route::middleware('auth')->group(function () {
     
     // Project routes
     Route::resource('projects', ProjectController::class);
+    
+    // User Statistics route
+    Route::get('/stats', [UserStatsController::class, 'index'])->name('stats.index');
+    Route::get('/stats/export/{format?}', [UserStatsController::class, 'export'])->name('stats.export');
+    Route::get('/stats/report', [UserStatsController::class, 'report'])->name('stats.report');
     
     // Subtask routes
     Route::patch('/subtasks/{subtask}/toggle', [SubtaskController::class, 'toggle'])

@@ -50,6 +50,14 @@ class DashboardController extends Controller
         // Thống kê nhanh với auto status
         $allProjects = Project::where('user_id', $user->id)->with('subtasks')->get();
         
+        $totalSubtasks = $allProjects->sum(function($project) {
+            return $project->subtasks->count();
+        });
+        
+        $completedSubtasks = $allProjects->sum(function($project) {
+            return $project->subtasks->where('is_completed', true)->count();
+        });
+        
         $stats = [
             'total' => $allProjects->count(),
             'completed' => $allProjects->filter(function($project) {
@@ -64,6 +72,8 @@ class DashboardController extends Controller
             'not_planned' => $allProjects->filter(function($project) {
                 return $project->final_status === 'not_planned';
             })->count(),
+            'total_subtasks' => $totalSubtasks,
+            'completed_subtasks' => $completedSubtasks,
         ];
 
         return view('dashboard', compact('projects', 'stats', 'sortBy'));
