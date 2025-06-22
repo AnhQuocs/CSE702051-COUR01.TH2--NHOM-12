@@ -3,9 +3,8 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight min-w-0 flex-1 mr-4 break-words overflow-hidden">
                 {{ $project->title }}
             </h2>
-            <div class="flex space-x-2 flex-shrink-0">
-                <a href="{{ route('dashboard') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
-                    ← Quay lại Dashboard
+            <div class="flex space-x-2 flex-shrink-0">                <a href="{{ route('dashboard') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
+                    ← Quay lại Trang chủ
                 </a>
             </div>
         </div>

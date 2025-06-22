@@ -4,9 +4,8 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ $project->title }}
             </h2>
-            <div class="flex space-x-2">
-                <a href="{{ route('dashboard') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
-                    ← Quay lại Dashboard
+            <div class="flex space-x-2">                <a href="{{ route('dashboard') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
+                    ← Quay lại Trang chủ
                 </a>
                 <a href="{{ route('projects.index') }}" class="inline-block px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
                     Quản lý dự án
