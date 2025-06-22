@@ -14,7 +14,7 @@ Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, c
 - **Xác thực người dùng** (đăng ký, đăng nhập, đăng xuất)
 - **Quản lý dự án** (CRUD, lọc, tìm kiếm, phân trang)
 - **Hệ thống nhãn và danh mục** cho dự án
-- **Quản lý công việc con** (subtasks) với drag & drop
+- **Quản lý công việc con** (subtasks) với checkbox toggle
 - **Thống kê và báo cáo** chi tiết (xuất CSV/JSON)
 - **Quản lý profile người dùng** (chỉnh sửa thông tin, đổi mật khẩu)
 - **Nhắc nhở qua email** tự động (command scheduler)
@@ -118,7 +118,7 @@ DELETE /subtasks/{id}                    # Xóa công việc con
 - **Blade Templates** - Server-side rendering
 - **Tailwind CSS** - Utility-first CSS
 - **Alpine.js** - Lightweight JavaScript
-- **SortableJS** - Drag & drop functionality
+- **JavaScript** - Interactive UI components
 
 ### Development Tools
 - **Composer** - PHP dependency manager
