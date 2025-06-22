@@ -196,6 +196,8 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
+> 📝 **Lưu ý cho XAMPP**: Cần tạo database `project_management` trong phpMyAdmin (http://localhost/phpmyadmin) trước khi chạy migration.
+
 5. **Chạy migration và seeder**
 ```bash
 php artisan migrate
