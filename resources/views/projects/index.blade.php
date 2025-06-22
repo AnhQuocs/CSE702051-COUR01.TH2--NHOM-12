@@ -33,22 +33,20 @@
                         <input type="text" id="search" name="search" value="{{ request('search') }}" 
                                placeholder="Tìm theo tiêu đề hoặc mô tả..." 
                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
-                        <select id="category_id" name="category_id" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Tất cả danh mục</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>                    <div class="tag-filter-container">
+                    </div>                        <div>
+                            <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
+                            <select id="category_id" name="category_id" onchange="this.form.submit()" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tất cả danh mục</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div><div class="tag-filter-container">
                         <label for="tag_id" class="block text-sm font-medium text-gray-700 mb-1">
                             <span class="tag-icon">#</span>Tag
-                        </label>                        <select id="tag_id" name="tag_id" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </label>                        <select id="tag_id" name="tag_id" onchange="this.form.submit()" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Tất cả tag</option>
                             @foreach($tags as $tag)
                                 <option value="{{ $tag->id }}" {{ request('tag_id') == $tag->id ? 'selected' : '' }}>
@@ -56,23 +54,21 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
-                    
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-                        <select id="status" name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="not_planned" {{ request('status') == 'not_planned' ? 'selected' : '' }}>Chưa lên kế hoạch</option>
-                            <option value="not_started" {{ request('status') == 'not_started' ? 'selected' : '' }}>Chưa bắt đầu</option>
-                            <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>Đang thực hiện</option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
-                            <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Quá hạn</option>
-                        </select>
-                    </div>
+                    </div>                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                            <select id="status" name="status" onchange="this.form.submit()" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="not_planned" {{ request('status') == 'not_planned' ? 'selected' : '' }}>Chưa lên kế hoạch</option>
+                                <option value="not_started" {{ request('status') == 'not_started' ? 'selected' : '' }}>Chưa bắt đầu</option>
+                                <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>Đang thực hiện</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Hoàn thành</option>
+                                <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Quá hạn</option>
+                            </select>
+                        </div>
                     
                     <div>
                         <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp</label>
-                        <select id="sort_by" name="sort_by" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="sort_by" name="sort_by" onchange="this.form.submit()" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Ngày tạo</option>
                             <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>Tên dự án</option>
                             <option value="end_date" {{ request('sort_by') == 'end_date' ? 'selected' : '' }}>Ngày kết thúc</option>                            <option value="priority" {{ request('sort_by') == 'priority' ? 'selected' : '' }}>Mức độ ưu tiên</option>                        </select>
@@ -357,17 +353,31 @@
             const projectsGrid = document.getElementById('projects-grid');
             const filterForm = document.getElementById('filter-form');
             
-            let searchTimeout;
-            
-            // Function to submit form with filters
+            let searchTimeout;            // Function to submit form with filters
             function updateFilters() {
-                // Show loading state
-                if (projectsGrid) {
-                    projectsGrid.classList.add('projects-loading');
+                console.log('updateFilters called');
+                
+                // Build URL with current form values
+                const url = new URL(window.location.origin + '{{ route("projects.index") }}');
+                
+                if (searchInput.value.trim()) {
+                    url.searchParams.set('search', searchInput.value.trim());
+                }
+                if (categorySelect.value) {
+                    url.searchParams.set('category_id', categorySelect.value);
+                }
+                if (tagSelect.value) {
+                    url.searchParams.set('tag_id', tagSelect.value);
+                }
+                if (statusSelect.value) {
+                    url.searchParams.set('status', statusSelect.value);
+                }
+                if (sortSelect.value && sortSelect.value !== 'created_at') {
+                    url.searchParams.set('sort_by', sortSelect.value);
                 }
                 
-                // Submit the form
-                filterForm.submit();
+                console.log('Redirecting to:', url.toString());
+                window.location.href = url.toString();
             }
             
             // Real-time search with debounce (delay typing)
@@ -379,19 +389,21 @@
                 searchTimeout = setTimeout(() => {
                     updateFilters();
                 }, 800); // Wait 800ms after user stops typing for better UX
-            });
-              // Immediate filter on select change
+            });            // Immediate filter on select change
             categorySelect.addEventListener('change', function() {
+                console.log('Category changed:', this.value);
                 this.classList.add('filter-loading');
                 updateFilters();
             });
             
             tagSelect.addEventListener('change', function() {
+                console.log('Tag changed:', this.value);
                 this.classList.add('filter-loading');
                 updateFilters();
             });
             
             statusSelect.addEventListener('change', function() {
+                console.log('Status changed:', this.value);
                 this.classList.add('filter-loading');
                 updateFilters();
             });
