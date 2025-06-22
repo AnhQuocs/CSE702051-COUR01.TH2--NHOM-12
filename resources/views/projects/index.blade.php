@@ -8,7 +8,10 @@
                 + Thêm dự án
             </a>
         </div>
-    </x-slot>    <div class="py-12">
+    </x-slot>
+
+    <!-- Add CSS for tag filter -->
+    <link rel="stylesheet" href="{{ asset('css/tag-filter.css') }}"><div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <!-- Flash Messages -->
@@ -22,10 +25,9 @@
                 <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded mb-6">
                     {{ session('error') }}
                 </div>
-            @endif
-              <!-- Filters -->
-            <div class="bg-white shadow rounded-lg p-6 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            @endif              <!-- Filters -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6 filters-container">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 filters-grid">
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
                         <input type="text" id="search" name="search" value="{{ request('search') }}" 
@@ -40,6 +42,17 @@
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>                    <div class="tag-filter-container">
+                        <label for="tag_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            <span class="tag-icon">#</span>Tag
+                        </label>                        <select id="tag_id" name="tag_id" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Tất cả tag</option>
+                            @foreach($tags as $tag)
+                                <option value="{{ $tag->id }}" {{ request('tag_id') == $tag->id ? 'selected' : '' }}>
+                                    #{{ $tag->name }}{{ $tag->projects_count > 0 ? ' (' . $tag->projects_count . ')' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -71,16 +84,19 @@
 
             <!-- Results summary -->
             @if($projects->count() > 0)
-                <div class="flex items-center justify-between mb-6">
-                    <div class="text-sm text-gray-600">
+                <div class="flex items-center justify-between mb-6">                    <div class="text-sm text-gray-600">
                         Hiển thị {{ $projects->count() }} dự án
-                        @if(request()->hasAny(['search', 'category_id', 'status']))
+                        @if(request()->hasAny(['search', 'category_id', 'tag_id', 'status']))
                             @if(request('search'))
                                 cho từ khóa "<strong>{{ request('search') }}</strong>"
                             @endif
                             @if(request('category_id'))
                                 @php $selectedCategory = $categories->find(request('category_id')) @endphp
                                 trong danh mục "<strong>{{ $selectedCategory->name ?? 'N/A' }}</strong>"
+                            @endif
+                            @if(request('tag_id'))
+                                @php $selectedTag = $tags->find(request('tag_id')) @endphp
+                                với tag "<strong>#{{ $selectedTag->name ?? 'N/A' }}</strong>"
                             @endif
                             @if(request('status'))
                                 @php
@@ -96,8 +112,7 @@
                             @endif
                         @endif
                     </div>
-                    
-                    @if(request()->hasAny(['search', 'category_id', 'status']))
+                      @if(request()->hasAny(['search', 'category_id', 'tag_id', 'status']))
                         <a href="{{ route('projects.index') }}" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -315,8 +330,7 @@
                 opacity: 0.6;
                 pointer-events: none;
             }
-            
-            /* Improved hover effects */
+              /* Improved hover effects */
             .project-card {
                 transition: all 0.3s ease;
             }
@@ -325,11 +339,17 @@
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             }
+            
+            /* Tag selector styling */
+            #tag_id option {
+                font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Monaco, Consolas, 'Roboto Mono', monospace;
+                font-weight: 500;
+            }
         </style>    <script>
-        // Real-time search and filter functionality
-        document.addEventListener('DOMContentLoaded', function() {
+        // Real-time search and filter functionality        document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search');
             const categorySelect = document.getElementById('category_id');
+            const tagSelect = document.getElementById('tag_id');
             const statusSelect = document.getElementById('status');
             const sortSelect = document.getElementById('sort_by');
             const projectsGrid = document.getElementById('projects-grid');
@@ -346,11 +366,16 @@
                 if (searchValue) {
                     params.set('search', searchValue);
                 }
-                
-                // Add category parameter
+                  // Add category parameter
                 const categoryValue = categorySelect.value;
                 if (categoryValue) {
                     params.set('category_id', categoryValue);
+                }
+                
+                // Add tag parameter
+                const tagValue = tagSelect.value;
+                if (tagValue) {
+                    params.set('tag_id', tagValue);
                 }
                 
                 // Add status parameter
@@ -385,9 +410,13 @@
                     updateFilters();
                 }, 800); // Wait 800ms after user stops typing for better UX
             });
-            
-            // Immediate filter on select change
+              // Immediate filter on select change
             categorySelect.addEventListener('change', function() {
+                this.classList.add('filter-loading');
+                updateFilters();
+            });
+            
+            tagSelect.addEventListener('change', function() {
                 this.classList.add('filter-loading');
                 updateFilters();
             });
@@ -403,10 +432,10 @@
             });
             
             // Add visual feedback for active filters
-            function updateFilterStyles() {
-                const filters = [
+            function updateFilterStyles() {                const filters = [
                     { element: searchInput, hasValue: searchInput.value.trim() !== '' },
                     { element: categorySelect, hasValue: categorySelect.value !== '' },
+                    { element: tagSelect, hasValue: tagSelect.value !== '' },
                     { element: statusSelect, hasValue: statusSelect.value !== '' },
                     { element: sortSelect, hasValue: sortSelect.value !== 'created_at' }
                 ];
@@ -430,9 +459,8 @@
             
             // Update styles on page load
             updateFilterStyles();
-            
-            // Update styles when filters change
-            [searchInput, categorySelect, statusSelect, sortSelect].forEach(element => {
+              // Update styles when filters change
+            [searchInput, categorySelect, tagSelect, statusSelect, sortSelect].forEach(element => {
                 element.addEventListener('input', updateFilterStyles);
                 element.addEventListener('change', updateFilterStyles);
             });
@@ -446,9 +474,8 @@
                     }
                 });
             }
-            
-            // Improve form submission UX
-            const hasActiveFilters = searchInput.value || categorySelect.value || statusSelect.value || (sortSelect.value !== 'created_at');
+              // Improve form submission UX
+            const hasActiveFilters = searchInput.value || categorySelect.value || tagSelect.value || statusSelect.value || (sortSelect.value !== 'created_at');
             if (hasActiveFilters) {
                 document.body.classList.add('has-active-filters');
             }

@@ -25,6 +25,13 @@ class ProjectController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        // Filter by tag
+        if ($request->filled('tag_id')) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('tags.id', $request->tag_id);
+            });
+        }
+
         // Filter by status (using computed final_status)
         if ($request->filled('status')) {
             // Since final_status is computed, we need to filter after loading
@@ -66,8 +73,14 @@ class ProjectController extends Controller
             ['path' => request()->url(), 'query' => request()->query()]
         );
         $categories = Category::all();
+        $tags = Tag::where('is_active', true)
+            ->withCount(['projects' => function($query) {
+                $query->where('user_id', Auth::id());
+            }])
+            ->orderBy('name')
+            ->get();
 
-        return view('projects.index', compact('projects', 'categories'));
+        return view('projects.index', compact('projects', 'categories', 'tags'));
     }
 
     /**
