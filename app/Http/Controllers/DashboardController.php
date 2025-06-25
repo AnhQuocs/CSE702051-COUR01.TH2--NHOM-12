@@ -28,12 +28,7 @@ class DashboardController extends Controller
                 break;
             case 'deadline':
                 // Sắp xếp theo thời hạn (gần nhất trước)
-                $projects = $projectsQuery->get()->sortBy(function($project) {
-                    if ($project->end_date) {
-                        return \Carbon\Carbon::parse($project->end_date)->timestamp;
-                    }
-                    return PHP_INT_MAX; // Đặt projects không có deadline ở cuối
-                })->values()->take(15);
+                $projects = $projectsQuery->get()->sortBy('end_date')->values()->take(15);
                 break;
             case 'priority':
                 // Sắp xếp theo mức độ ưu tiên (cao -> trung bình -> thấp)

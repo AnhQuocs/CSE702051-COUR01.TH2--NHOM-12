@@ -103,7 +103,7 @@ class Project extends Model
             return false;
         }
         
-        return $this->end_date->isPast();
+        return $this->end_date < now()->toDateString();
     }
 
     /**
