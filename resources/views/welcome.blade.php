@@ -42,7 +42,7 @@
                         </span>
                     </h1>
                     <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                        Tổ chức công việc, theo dõi tiến độ và hoàn thành dự án một cách chuyên nghiệp với My Project Hub
+                        Tổ chức công việc, theo dõi tiến độ và hoàn thành dự án một cách chuyên nghiệp với {{ config('app.name', 'Hệ Thống Quản Lý Dự Án') }}
                     </p>
                     
                     @guest

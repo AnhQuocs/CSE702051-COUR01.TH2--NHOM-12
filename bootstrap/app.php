@@ -15,12 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
-        
-        // Register custom middleware
-        $middleware->alias([
-            'prevent.back' => \App\Http\Middleware\PreventBackHistory::class,
-            'check.auth' => \App\Http\Middleware\CheckAuthentication::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
