@@ -157,14 +157,12 @@ chmod +x setup-auto.sh
 ./setup-auto.sh
 ```
 
-> 💡 **Script tự động sẽ thực hiện:**
-> * Cài đặt các dependencies PHP và Node.js
-> * Tạo file .env và khóa mã hóa Laravel
-> * Tạo database (SQLite) và chạy migrations
-> * Build frontend với Vite
-> * Cấu hình cơ bản cho dự án
-
-**Xem file `SETUP-AUTO.md` để biết chi tiết và troubleshooting nếu gặp lỗi.**
+>Script này sẽ tự động:
+* Cài các dependencies PHP và Node
+* Tạo file .env và khóa mã hóa
+* Tạo database (SQLite) và chạy migrations
+* Build frontend với Vite
+Xem chi tiết file SETUP.md nếu gặp lỗi trong quá trình cài đặt.
 
 ### Hướng dẫn cài đặt thủ công
 
