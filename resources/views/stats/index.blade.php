@@ -8,13 +8,13 @@
                 </div>                <div class="flex items-center space-x-2">
                     <!-- Report button -->
                     <a href="{{ route('stats.report') }}" class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors duration-200 flex items-center">
-                        📋 Báo cáo chi tiết
+                        Báo cáo chi tiết
                     </a>
                     
                     <!-- Export dropdown -->
                     <div class="relative inline-block text-left" x-data="{ open: false }">
                         <button @click="open = !open" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors duration-200 flex items-center">
-                            📊 Xuất dữ liệu
+                            Xuất dữ liệu
                             <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -23,17 +23,17 @@
                         <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                             <div class="py-1">
                                 <a href="{{ route('stats.export', 'json') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    📄 Xuất JSON
+                                    Xuất JSON
                                 </a>
                                 <a href="{{ route('stats.export', 'csv') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    📊 Xuất CSV
+                                    Xuất CSV
                                 </a>
                             </div>
                         </div>
                     </div>
                     
                     <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors duration-200">
-                        🔄 Làm mới
+                        Làm mới
                     </button>
                 </div>
             </div>
