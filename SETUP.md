@@ -1,67 +1,67 @@
-# 🚀 Laravel Project Setup Guide
+# 🚀 Hướng dẫn cài đặt dự án Laravel
 
-## Quick Setup (Recommended)
+## Cài đặt nhanh (Khuyến nghị)
 
-### For Windows:
+### Cho Windows:
 ```bash
 .\setup.bat
 ```
 
-### For Linux/Mac:
+### Cho Linux/Mac:
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-## Manual Setup Steps
+## Các bước cài đặt thủ công
 
-If the automatic setup doesn't work, follow these steps manually:
+Nếu cài đặt tự động không hoạt động, hãy làm theo các bước sau:
 
-### 1. Environment Configuration
+### 1. Cấu hình môi trường
 ```bash
-# Copy environment file
+# Sao chép file môi trường
 cp .env.example .env  # Linux/Mac
 copy .env.example .env  # Windows
 ```
 
-### 2. Install Dependencies
+### 2. Cài đặt dependencies
 ```bash
-# Install PHP dependencies
+# Cài đặt dependencies PHP
 composer install
 
-# Install Node.js dependencies
+# Cài đặt dependencies Node.js
 npm install
 ```
 
-### 3. Application Setup
+### 3. Thiết lập ứng dụng
 ```bash
-# Generate application key
+# Tạo application key
 php artisan key:generate
 ```
 
-### 4. Database Setup
+### 4. Thiết lập database
 ```bash
-# Create SQLite database (if using SQLite)
+# Tạo database SQLite (nếu sử dụng SQLite)
 touch database/database.sqlite  # Linux/Mac
 type nul > database\database.sqlite  # Windows
 
-# Run migrations
+# Chạy migrations
 php artisan migrate
 
-# Run seeders (optional)
+# Chạy seeders (tùy chọn)
 php artisan db:seed
 ```
 
-### 5. Build Assets
+### 5. Build assets
 ```bash
-# For production
+# Cho production
 npm run build
 
-# For development (with file watching)
+# Cho development (với file watching)
 npm run dev
 ```
 
-### 6. Clear Caches
+### 6. Xóa cache
 ```bash
 php artisan config:clear
 php artisan cache:clear
@@ -69,14 +69,14 @@ php artisan route:clear
 php artisan view:clear
 ```
 
-### 7. Set Permissions (Linux/Mac only)
+### 7. Thiết lập quyền (Chỉ Linux/Mac)
 ```bash
 chmod -R 775 storage bootstrap/cache
 ```
 
-## Requirements
+## Yêu cầu hệ thống
 
-- **PHP >= 8.2** with extensions:
+- **PHP >= 8.2** với các extensions:
   - mbstring
   - xml
   - ctype
@@ -84,62 +84,62 @@ chmod -R 775 storage bootstrap/cache
   - bcmath
   - fileinfo
   - tokenizer
-  - sqlite3 (if using SQLite)
+  - sqlite3 (nếu sử dụng SQLite)
 
 - **Composer** (PHP dependency manager)
-- **Node.js >= 16** and npm
+- **Node.js >= 16** và npm
 - **Git**
 
-## Common Issues & Solutions
+## Các vấn đề thường gặp & Giải pháp
 
-### Issue: "No application encryption key has been specified"
+### Vấn đề: "No application encryption key has been specified"
 ```bash
 php artisan key:generate
 ```
 
-### Issue: "Class not found" errors
+### Vấn đề: Lỗi "Class not found"
 ```bash
 composer dump-autoload
 ```
 
-### Issue: Database connection error
-- Check `.env` file database configuration
-- Ensure database exists
-- Run `php artisan migrate`
+### Vấn đề: Lỗi kết nối database
+- Kiểm tra cấu hình database trong file `.env`
+- Đảm bảo database đã tồn tại
+- Chạy `php artisan migrate`
 
-### Issue: Permission denied (Linux/Mac)
+### Vấn đề: Permission denied (Linux/Mac)
 ```bash
 sudo chmod -R 775 storage bootstrap/cache
 sudo chown -R www-data:www-data storage bootstrap/cache
 ```
 
-### Issue: Vite assets not loading
+### Vấn đề: Vite assets không load
 ```bash
 npm run build
 ```
 
-## Running the Application
+## Chạy ứng dụng
 
 ```bash
-# Start development server
+# Khởi động development server
 php artisan serve
 
-# Access at: http://localhost:8000
+# Truy cập tại: http://localhost:8000
 ```
 
-## Environment Variables
+## Biến môi trường
 
-Key variables to configure in `.env`:
+Các biến chính cần cấu hình trong `.env`:
 
 ```env
-APP_NAME="Project Management System"
+APP_NAME="Hệ thống quản lý dự án"
 APP_ENV=local
-APP_KEY=base64:... # Generated automatically
+APP_KEY=base64:... # Tự động tạo
 APP_DEBUG=true
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=sqlite
-# Or for MySQL:
+# Hoặc cho MySQL:
 # DB_CONNECTION=mysql
 # DB_HOST=127.0.0.1
 # DB_PORT=3306
@@ -148,5 +148,5 @@ DB_CONNECTION=sqlite
 # DB_PASSWORD=your_password
 
 MAIL_MAILER=log
-# Configure for real email sending if needed
+# Cấu hình để gửi email thật nếu cần
 ```

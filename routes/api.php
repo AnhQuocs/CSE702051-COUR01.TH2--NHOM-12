@@ -17,7 +17,7 @@ Route::post('login', function (Request $request) {
 
     $user = User::where('email', $request->email)->first();
 
-    if (!$user || !password_verify($request->password, $user->getAuthPassword())) {
+    if (!$user || !Hash::check($request->password, $user->password)) {
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 

@@ -51,17 +51,13 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         $project = Project::where('user_id', $user->id)->findOrFail($id);
-        $validated = $request->validated();
         
-        // Check if project is being marked as completed and is past deadline
-        if ($validated['status'] === 'completed' && $project->end_date && $project->end_date < now()->toDateString()) {
-            $validated['completed_late'] = true;
-        } elseif ($validated['status'] === 'completed') {
-            $validated['completed_late'] = false;
-        }
+        $project->update($request->validated());
         
-        $project->update($validated);
-        return response()->json($project);
+        return response()->json([
+            'message' => 'Project updated successfully',
+            'data' => $project->fresh()
+        ]);
     }
 
     /**

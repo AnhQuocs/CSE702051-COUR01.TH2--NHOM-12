@@ -11,17 +11,17 @@
 Hệ thống quản lý dự án cá nhân được xây dựng với Laravel, cung cấp giao diện web hiện đại và API RESTful có:
 
 ### Tính năng chính
-- **Xác thực người dùng** (đăng ký, đăng nhập, đăng xuất)
-- **Quản lý dự án** (CRUD, lọc, tìm kiếm, phân trang)
-- **Hệ thống nhãn và danh mục** cho dự án
-- **Quản lý công việc con** (subtasks) với checkbox toggle
-- **Thống kê và báo cáo** chi tiết (xuất CSV/JSON)
-- **Quản lý profile người dùng** (chỉnh sửa thông tin, đổi mật khẩu)
-- **Nhắc nhở qua email** tự động (command scheduler)
-- **API RESTful** với Laravel Sanctum
-- **Giao diện responsive** với Tailwind CSS
-- **Giao diện tiếng Việt** hoàn chỉnh
-- **Bảo mật cao** với authorization và validation
+- Xác thực người dùng (đăng ký, đăng nhập, đăng xuất)
+- Quản lý dự án (CRUD, lọc, tìm kiếm, phân trang)
+- Hệ thống nhãn và danh mục cho dự án
+- Quản lý công việc con (subtasks) với checkbox toggle
+- Thống kê và báo cáo chi tiết (xuất CSV/JSON)
+- Quản lý profile người dùng (chỉnh sửa thông tin, đổi mật khẩu)
+- Nhắc nhở qua email tự động (command scheduler)
+- API RESTful với Laravel Sanctum
+- Giao diện responsive với Tailwind CSS
+- Giao diện tiếng Việt hoàn chỉnh
+- Bảo mật cao với authorization và validation
 
 ---
 
@@ -148,16 +148,16 @@ cd CSE702051-COUR01.TH2--NHOM-12
 
 **Cho Windows (PowerShell/CMD):**
 ```bash
-.\setup.bat
+.\setup-auto.bat
 ```
 
 **Cho Linux/Mac (Terminal):**
 ```bash
-chmod +x setup.sh
-./setup.sh
+chmod +x setup-auto.sh
+./setup-auto.sh
 ```
 
-> 💡 **Lưu ý**: Script tự động sẽ thực hiện tất cả các bước cài đặt bên dưới. Xem file `SETUP.md` để biết thêm chi tiết và troubleshooting.
+Lưu ý: Script tự động sẽ thực hiện tất cả các bước cài đặt bên dưới. Xem file `SETUP-AUTO.md` để biết thêm chi tiết và troubleshooting.
 
 ### Hướng dẫn cài đặt thủ công
 
@@ -301,21 +301,10 @@ project/
 
 ---
 
-## Giấy phép
-
-Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
-
----
-
 ## Liên hệ
 
-- **Dự án**: CSE702051-COUR01.TH2--NHOM-12
 - **Môn học**: Web Nâng Cao (PHP Laravel)  
 - **Nhóm phát triển**: Nhóm 12
 - **GitHub**: https://github.com/AnhQuocs/CSE702051-COUR01.TH2--NHOM-12
 
 ---
-
-<p align="center">
-  <strong>Made with ❤️ by our team</strong>
-</p>
