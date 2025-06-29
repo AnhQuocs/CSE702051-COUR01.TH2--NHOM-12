@@ -157,7 +157,7 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-> 💡 Script này sẽ tự động:
+>  Script này sẽ tự động:
 * Cài các dependencies PHP và Node
 * Tạo file .env và khóa mã hóa
 * Tạo database (SQLite) và chạy migrations
@@ -325,7 +325,3 @@ Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE]
 - **GitHub**: https://github.com/AnhQuocs/CSE702051-COUR01.TH2--NHOM-12
 
 ---
-
-<p align="center">
-  <strong>Made with ❤️ by our team</strong>
-</p>
