@@ -157,7 +157,14 @@ chmod +x setup-auto.sh
 ./setup-auto.sh
 ```
 
-Lưu ý: Script tự động sẽ thực hiện tất cả các bước cài đặt bên dưới. Xem file `SETUP-AUTO.md` để biết thêm chi tiết và troubleshooting.
+> 💡 **Script tự động sẽ thực hiện:**
+> * Cài đặt các dependencies PHP và Node.js
+> * Tạo file .env và khóa mã hóa Laravel
+> * Tạo database (SQLite) và chạy migrations
+> * Build frontend với Vite
+> * Cấu hình cơ bản cho dự án
+
+**Xem file `SETUP-AUTO.md` để biết chi tiết và troubleshooting nếu gặp lỗi.**
 
 ### Hướng dẫn cài đặt thủ công
 
@@ -184,6 +191,11 @@ php artisan key:generate
 **Cho SQLite (mặc định - đơn giản):**
 ```env
 DB_CONNECTION=sqlite
+```
+Tạo file database nếu chưa có:
+```bash
+type nul > database/database.sqlite  # (Windows)
+touch database/database.sqlite       # (Linux/macOS)
 ```
 
 **Hoặc cho MySQL (XAMPP):**
